@@ -1,5 +1,5 @@
 {
-    "name"             : "devosa/excel-exporter",
+    "name"             : "devosa/exporter",
     "description"      : "Master/Employee Data Excel Dynamic Exporter",
     "keywords"         : [
         "exporter",
@@ -15,7 +15,12 @@
         "issues": "http://192.168.1.254/redmine/projects/exporter-utility-system/issues",
         "source": "http://192.168.1.254:8000/devosa/exporter-utility/tree/master"
     },
-
+    "repositories"     : [
+        {
+            "type": "vcs",
+            "url" : "http://192.168.1.254:8000/devosa/exporter-utility.git"
+        }
+    ],
     "authors"          : [
         {
             "name" : "Bambang Adrian Sitompul",
@@ -25,12 +30,13 @@
     ],
     "autoload"         : {
         "psr-4": {
-            "Exporter": "src/system"
+            "Bridge\\Components\\Exporter": "src/"
         }
     },
     "require"          : {
         "php"               : "~5.6.16",
-        "phpoffice/phpexcel": "~1.8.1"
+        "phpoffice/phpexcel": "~1.8.1",
+        "doctrine/dbal"     : "~2.5.4"
     },
     "require-dev"      : {
         "squizlabs/php_codesniffer": "2.5.1",
