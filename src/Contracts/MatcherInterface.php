@@ -27,11 +27,11 @@ interface MatcherInterface
     /**
      * Add the data target that will be compared and matched with the data source.
      *
-     * @param \Bridge\Components\Exporter\Contracts\DataSourceInterface $target Data target object parameter.
+     * @param \Bridge\Components\Exporter\Contracts\ExporterDataSourceInterface $target Data target object parameter.
      *
      * @return void
      */
-    public function addTarget(\Bridge\Components\Exporter\Contracts\DataSourceInterface $target);
+    public function addTarget(\Bridge\Components\Exporter\Contracts\ExporterDataSourceInterface $target);
 
     /**
      * Get matcher result data.
@@ -50,11 +50,11 @@ interface MatcherInterface
     /**
      * Set source data property.
      *
-     * @param \Bridge\Components\Exporter\Contracts\DataSourceInterface $source Data source parameter.
+     * @param \Bridge\Components\Exporter\Contracts\ExporterDataSourceInterface $source Data source parameter.
      *
      * @return void
      */
-    public function setSource(\Bridge\Components\Exporter\Contracts\DataSourceInterface $source);
+    public function setSource(\Bridge\Components\Exporter\Contracts\ExporterDataSourceInterface $source);
 
     /**
      * Set table entity property that will act as the virtual document rules.

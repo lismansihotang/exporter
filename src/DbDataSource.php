@@ -21,7 +21,7 @@ namespace Bridge\Components\Exporter;
  * @copyright  2016 -
  * @release    $Revision$
  */
-class DbDataSource implements \Bridge\Components\Exporter\Contracts\DataSourceInterface
+class DbExporterDataSource implements \Bridge\Components\Exporter\Contracts\ExporterDataSourceInterface
 {
 
 }

@@ -13,7 +13,7 @@
 namespace Bridge\Components\Exporter\Contracts;
 
 /**
- * DataSourceInterface class description.
+ * ExporterDataSourceInterface class description.
  *
  * @package    Components
  * @subpackage Exporter\Contracts
@@ -21,8 +21,17 @@ namespace Bridge\Components\Exporter\Contracts;
  * @copyright  2016 -
  * @release    $Revision$
  */
-interface DataSourceInterface
+interface ExporterDataSourceInterface
 {
+
+    /**
+     * Do mass import data set.
+     *
+     * @param array $data Data that will be updated into data source.
+     *
+     * @return boolean
+     */
+    public function doMassImport(array $data);
 
     /**
      * Get resource data.
@@ -39,13 +48,4 @@ interface DataSourceInterface
      * @return array
      */
     public function getFields();
-
-    /**
-     * Update data set.
-     *
-     * @param array $data Data that will be updated into data source.
-     *
-     * @return boolean
-     */
-    public function updateDataSet(array $data);
 }

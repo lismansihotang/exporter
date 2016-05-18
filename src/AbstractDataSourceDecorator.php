@@ -21,13 +21,13 @@ namespace Bridge\Components\Exporter;
  * @copyright  2016 -
  * @release    $Revision$
  */
-abstract class AbstractDataSourceDecorator implements \Bridge\Components\Exporter\Contracts\DataSourceInterface
+abstract class AbstractExporterDataSourceDecorator implements \Bridge\Components\Exporter\Contracts\ExporterDataSourceInterface
 {
 
     /**
      * Source adapter object.
      *
-     * @var \Bridge\Components\Exporter\Contracts\DataSourceInterface $SourceAdapter
+     * @var \Bridge\Components\Exporter\Contracts\ExporterDataSourceInterface $SourceAdapter
      */
     protected $SourceAdapter;
 

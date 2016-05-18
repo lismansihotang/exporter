@@ -48,11 +48,9 @@ interface ExporterInterface
     /**
      * Do the data export.
      *
-     * @param \Bridge\Components\Exporter\Contracts\DataSourceInterface $target Data target object parameter
-     *
      * @return boolean
      */
-    public function doExport(\Bridge\Components\Exporter\Contracts\DataSourceInterface $target);
+    public function doExport();
 
     /**
      * Get log data property.

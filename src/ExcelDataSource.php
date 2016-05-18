@@ -21,7 +21,7 @@ namespace Bridge\Components\Exporter;
  * @copyright  2016 -
  * @release    $Revision$
  */
-class ExcelDataSource implements \Bridge\Components\Exporter\Contracts\DataSourceInterface
+class ExcelExporterDataSource implements \Bridge\Components\Exporter\Contracts\ExporterDataSourceInterface
 {
 
     /**
@@ -76,7 +76,7 @@ class ExcelDataSource implements \Bridge\Components\Exporter\Contracts\DataSourc
      *
      * @return boolean
      */
-    public function updateDataSet(array $data)
+    public function doMassImport(array $data)
     {
         # TODO: Implement updateDataSet() method.
     }
