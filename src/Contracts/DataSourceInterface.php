@@ -21,7 +21,7 @@ namespace Bridge\Components\Exporter\Contracts;
  * @copyright  2016 -
  * @release    $Revision$
  */
-interface ExporterDataSourceInterface
+interface DataSourceInterface
 {
 
     /**

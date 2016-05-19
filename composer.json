@@ -30,7 +30,7 @@
     ],
     "autoload"         : {
         "psr-4": {
-            "Bridge\\Components\\Exporter": "src/"
+            "Bridge\\Components\\Exporter\\": "src/"
         }
     },
     "require"          : {

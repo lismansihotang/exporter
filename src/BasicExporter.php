@@ -48,7 +48,7 @@ class BasicExporter implements \Bridge\Components\Exporter\Contracts\ExporterInt
     /**
      * Target object property
      *
-     * @var \Bridge\Components\Exporter\Contracts\ExporterDataSourceInterface $TargetObject
+     * @var \Bridge\Components\Exporter\Contracts\DataSourceInterface $TargetObject
      */
     private $TargetObject;
 
@@ -62,10 +62,10 @@ class BasicExporter implements \Bridge\Components\Exporter\Contracts\ExporterInt
     /**
      * BasicExporter constructor.
      *
-     * @param array                                 $exportedData Exported data array parameter.
-     * @param Contracts\ExporterDataSourceInterface $targetObject Data target object parameter.
+     * @param array                         $exportedData Exported data array parameter.
+     * @param Contracts\DataSourceInterface $targetObject Data target object parameter.
      */
-    public function __construct(array $exportedData = [], Contracts\ExporterDataSourceInterface $targetObject = null)
+    public function __construct(array $exportedData = [], Contracts\DataSourceInterface $targetObject = null)
     {
         $this->setExportedData($exportedData);
         $this->setTargetObject($targetObject);
@@ -117,7 +117,7 @@ class BasicExporter implements \Bridge\Components\Exporter\Contracts\ExporterInt
     /**
      * Get exporter target object property.
      *
-     * @return \Bridge\Components\Exporter\Contracts\ExporterDataSourceInterface
+     * @return \Bridge\Components\Exporter\Contracts\DataSourceInterface
      */
     public function getTargetObject()
     {
@@ -139,11 +139,11 @@ class BasicExporter implements \Bridge\Components\Exporter\Contracts\ExporterInt
     /**
      * Set exporter target object property.
      *
-     * @param \Bridge\Components\Exporter\Contracts\ExporterDataSourceInterface $targetObject Target object parameter.
+     * @param \Bridge\Components\Exporter\Contracts\DataSourceInterface $targetObject Target object parameter.
      *
      * @return void
      */
-    public function setTargetObject(\Bridge\Components\Exporter\Contracts\ExporterDataSourceInterface $targetObject)
+    public function setTargetObject(\Bridge\Components\Exporter\Contracts\DataSourceInterface $targetObject)
     {
         $this->TargetObject = $targetObject;
     }

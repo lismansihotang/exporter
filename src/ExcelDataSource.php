@@ -21,7 +21,7 @@ namespace Bridge\Components\Exporter;
  * @copyright  2016 -
  * @release    $Revision$
  */
-class ExcelExporterDataSource implements \Bridge\Components\Exporter\Contracts\ExporterDataSourceInterface
+class ExcelDataSource implements \Bridge\Components\Exporter\Contracts\DataSourceInterface
 {
 
     /**
@@ -35,16 +35,30 @@ class ExcelExporterDataSource implements \Bridge\Components\Exporter\Contracts\E
      * ExcelDataSource constructor.
      *
      * @param string $filePath Excel file path parameter.
+     * @param string $type     The reader type that indicates the excel file type.
      */
-    public function __construct($filePath = '')
+    public function __construct($filePath, $type = 'Excel5')
     {
         try {
             if (trim($filePath) !== '' or $filePath !== null) {
-                $this->ExcelFileObject = new \Bridge\Components\Exporter\ExcelFile($filePath);
+                $this->ExcelFileObject = new \Bridge\Components\Exporter\ExcelFile($filePath, $type);
             }
-        } catch (\Exception $e) {
-            echo 'error: ' . $e->getMessage();
+        } catch (\Exception $ex) {
+            throw new \Bridge\Components\Exporter\ExporterException($ex->getMessage());
         }
+    }
+
+    /**
+     * Update data set.
+     *
+     * @param array $data Data that will be updated into data source.
+     *
+     * @return boolean
+     */
+    public function doMassImport(array $data)
+    {
+        # TODO: Implement updateDataSet() method.
+        return true;
     }
 
     /**
@@ -67,17 +81,5 @@ class ExcelExporterDataSource implements \Bridge\Components\Exporter\Contracts\E
     public function getFields()
     {
         # TODO: Implement getFields() method.
-    }
-
-    /**
-     * Update data set.
-     *
-     * @param array $data Data that will be updated into data source.
-     *
-     * @return boolean
-     */
-    public function doMassImport(array $data)
-    {
-        # TODO: Implement updateDataSet() method.
     }
 }

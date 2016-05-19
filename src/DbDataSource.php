@@ -21,7 +21,40 @@ namespace Bridge\Components\Exporter;
  * @copyright  2016 -
  * @release    $Revision$
  */
-class DbExporterDataSource implements \Bridge\Components\Exporter\Contracts\ExporterDataSourceInterface
+class DbDataSource implements \Bridge\Components\Exporter\Contracts\DataSourceInterface
 {
 
+    /**
+     * Do mass import data set.
+     *
+     * @param array $data Data that will be updated into data source.
+     *
+     * @return boolean
+     */
+    public function doMassImport(array $data)
+    {
+        # TODO: Implement doMassImport() method.
+    }
+
+    /**
+     * Get resource data.
+     *
+     * @param array $fieldFilters Array field filters data parameter.
+     *
+     * @return array
+     */
+    public function getData(array $fieldFilters = [])
+    {
+        # TODO: Implement getData() method.
+    }
+
+    /**
+     * Get field lists from data source.
+     *
+     * @return array
+     */
+    public function getFields()
+    {
+        # TODO: Implement getFields() method.
+    }
 }
