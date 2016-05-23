@@ -34,12 +34,14 @@ class ExcelEntityFieldsReadFilter extends \Bridge\Components\Exporter\AbstractEx
      *
      * @throws \Bridge\Components\Exporter\ExporterException If multiple number of row that given.
      */
-    public function __construct($startRow, $endRow, array $columns, $workSheetName)
+    public function __construct($startRow, $endRow, array $columns, $workSheetName = '')
     {
         if ($startRow !== $endRow) {
             throw new \Bridge\Components\Exporter\ExporterException('Entity fields only can read on one single row');
         }
+        if (trim($workSheetName) !== '' and $workSheetName !== null) {
+            $this->setWorkSheetName($workSheetName);
+        }
         parent::__construct($startRow, $endRow, $columns);
-        $this->setWorkSheetName($workSheetName);
     }
 }

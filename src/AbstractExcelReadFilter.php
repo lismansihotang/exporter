@@ -7,7 +7,7 @@
  * @author    Bambang Adrian Sitompul <bambang.adrian@gmail.com>
  * @copyright 2016 Developer
  * @license   - No License
- * @version   GIT: $Id$
+ * @version   GIT: $Id: 302a9b2743138e2d4f4adb92bf46d82803d3a6f7 $
  * @link      -
  */
 namespace Bridge\Components\Exporter;
@@ -61,7 +61,7 @@ abstract class AbstractExcelReadFilter implements \Bridge\Components\Exporter\Co
      *
      * @throws \Bridge\Components\Exporter\ExporterException If any error raised when construct this instance.
      */
-    public function __construct($startRow, $endRow, array $columns)
+    public function __construct($startRow = null, $endRow = null, array $columns = [])
     {
         try {
             $this->setStartRow($startRow);
@@ -124,12 +124,20 @@ abstract class AbstractExcelReadFilter implements \Bridge\Components\Exporter\Co
     public function readCell($column, $row, $workSheetName = '')
     {
         # Only read the rows, columns, and worksheet name that were configured
-        return (
-            $row >= $this->getStartRow() and
-            $row <= $this->getEndRow() and
-            in_array($column, $this->getColumns(), true) === true and
-            $workSheetName === $this->getWorkSheetName()
-        );
+        if ($this->getWorkSheetName() !== '' and
+            $this->getWorkSheetName() !== null and
+            $workSheetName !== $this->getWorkSheetName()
+        ) {
+            return false;
+        }
+        if ($this->getStartRow() !== null and $row < $this->getStartRow()) {
+            return false;
+        }
+        if ($this->getEndRow() !== null and $row > $this->getEndRow()) {
+            return false;
+        }
+        return (count($this->getColumns()) !== 0 and $this->getColumns() !== null and
+            in_array($column, $this->getColumns(), true) === true);
     }
 
     /**

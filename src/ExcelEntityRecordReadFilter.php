@@ -27,18 +27,24 @@ class ExcelEntityRecordReadFilter extends \Bridge\Components\Exporter\AbstractEx
     /**
      * ExcelEntityFieldsReadFilter constructor.
      *
+     * @param \Bridge\Components\Exporter\ExcelEntityFieldsReadFilter $readFilter Excel field filter object parameter.
      * @param integer                                                 $startRow   Start cell row number parameter.
      * @param integer                                                 $endRow     End cell row number parameter.
-     * @param \Bridge\Components\Exporter\ExcelEntityFieldsReadFilter $readFilter Excel field filter object parameter.
      *
      * @throws \Bridge\Components\Exporter\ExporterException Invalid start cell row number given.
      */
-    public function __construct($startRow, $endRow, \Bridge\Components\Exporter\ExcelEntityFieldsReadFilter $readFilter)
-    {
-        if ($startRow <= $readFilter->getStartRow()) {
-            throw new \Bridge\Components\Exporter\ExporterException('Entity fields only can read on one single row');
+    public function __construct(
+        \Bridge\Components\Exporter\ExcelEntityFieldsReadFilter $readFilter,
+        $startRow = null,
+        $endRow = null
+    ) {
+        if ($startRow === null) {
+            $startRow = $readFilter->getStartRow() + 1;
         }
-        parent::__construct($startRow, $endRow, $readFilter->getColumns());
+        if ($startRow <= $readFilter->getStartRow()) {
+            throw new \Bridge\Components\Exporter\ExporterException('Invalid start cell row number given');
+        }
         $this->setWorkSheetName($readFilter->getWorkSheetName());
+        parent::__construct($startRow, $endRow, $readFilter->getColumns());
     }
 }

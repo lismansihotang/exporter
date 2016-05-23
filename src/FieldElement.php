@@ -81,8 +81,7 @@ class FieldElement implements \Bridge\Components\Exporter\Contracts\FieldElement
     public function setDependency(
         \Bridge\Components\Exporter\Contracts\TableEntityInterface $dependencyTable,
         $dependencyFieldName
-    )
-    {
+    ) {
         # TODO: Implement setDependency() method.
     }
 

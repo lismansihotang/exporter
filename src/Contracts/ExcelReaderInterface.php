@@ -21,17 +21,48 @@ namespace Bridge\Components\Exporter\Contracts;
  * @copyright  2016 -
  * @release    $Revision$
  */
-interface ExcelReaderInterface extends \PHPExcel_Reader_IReader
+interface ExcelReaderInterface
 {
 
     /**
-     * Set read data only
-     *        Set to true, to advise the Reader only to read data values for cells, and to ignore any formatting
-     *        information. Set to false (the default) to advise the Reader to read both data and formatting for cells.
+     * Printing the excel document.
      *
-     * @param boolean $pValue Read-only flag parameter.
+     * @param array $options Option array set to printing mode parameter.
      *
-     * @return \Bridge\Components\Exporter\Contracts\ExcelReaderInterface
+     * @return void
      */
-    public function setReadDataOnly($pValue = false);
+    public function doPrinting(array $options = []);
+
+    /**
+     * Load and read excel file.
+     *
+     * @param \Bridge\Components\Exporter\Contracts\ExcelReadFilterInterface $readFilter Excel read filter parameter.
+     * @param array                                                          $sheetNames Sheet name data collection
+     *                                                                                   parameter.
+     * @param string                                                         $readerType Excel reader type parameter.
+     *
+     * @throws \PHPExcel_Reader_Exception If invalid reader type or the file cannot be loaded.
+     * @return void
+     */
+    public function doRead(
+        \Bridge\Components\Exporter\Contracts\ExcelReadFilterInterface $readFilter = null,
+        array $sheetNames = [],
+        $readerType = 'Excel2007'
+    );
+
+    /**
+     * Get excel file data property.
+     *
+     * @return array
+     */
+    public function getData();
+
+    /**
+     * Set read filter object property.
+     *
+     * @param \Bridge\Components\Exporter\Contracts\ExcelReadFilterInterface $readFilter Excel read filter parameter.
+     *
+     * @return void
+     */
+    public function setReadFilter(\Bridge\Components\Exporter\Contracts\ExcelReadFilterInterface $readFilter);
 }

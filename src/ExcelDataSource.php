@@ -27,7 +27,7 @@ class ExcelDataSource implements \Bridge\Components\Exporter\Contracts\DataSourc
     /**
      * Excel object property.
      *
-     * @var \Bridge\Components\Exporter\ExcelFile $ExcelFileObject
+     * @var \Bridge\Components\Exporter\BasicExcelFile $ExcelFileObject
      */
     private $ExcelFileObject;
 
@@ -36,12 +36,14 @@ class ExcelDataSource implements \Bridge\Components\Exporter\Contracts\DataSourc
      *
      * @param string $filePath Excel file path parameter.
      * @param string $type     The reader type that indicates the excel file type.
+     *
+     * @throws \Bridge\Components\Exporter\ExporterException If any error raised when construct the instance.
      */
     public function __construct($filePath, $type = 'Excel5')
     {
         try {
             if (trim($filePath) !== '' or $filePath !== null) {
-                $this->ExcelFileObject = new \Bridge\Components\Exporter\ExcelFile($filePath, $type);
+                $this->ExcelFileObject = new \Bridge\Components\Exporter\BasicExcelFile($filePath, $type);
             }
         } catch (\Exception $ex) {
             throw new \Bridge\Components\Exporter\ExporterException($ex->getMessage());

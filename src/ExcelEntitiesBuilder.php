@@ -34,7 +34,7 @@ class ExcelEntitiesBuilder
     /**
      * Excel file object property.
      *
-     * @var \Bridge\Components\Exporter\ExcelFile
+     * @var \Bridge\Components\Exporter\BasicExcelFile
      */
     private $ExcelFileObject;
 
@@ -106,8 +106,7 @@ class ExcelEntitiesBuilder
      */
     protected function load()
     {
-        $this->ExcelFileObject = new \Bridge\Components\Exporter\ExcelFile();
-
+        $this->ExcelFileObject = new \Bridge\Components\Exporter\BasicExcelFile();
     }
 
     /**

@@ -27,3 +27,5 @@
 *.jpeg binary
 *.png binary
 
+# Git Indent
+*.php indent
