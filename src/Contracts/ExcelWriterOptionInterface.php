@@ -32,6 +32,13 @@ interface ExcelWriterOptionInterface
     public function getWriterObject();
 
     /**
+     * Run or applied the option configuration to the writer object.
+     *
+     * @return void
+     */
+    public function runConfigurator();
+
+    /**
      * Set the excel writer options by passing the options data parameter.
      *
      * @param array $options Writer option data collection parameter.
@@ -39,11 +46,4 @@ interface ExcelWriterOptionInterface
      * @return void
      */
     public function setOptions(array $options = []);
-
-    /**
-     * Run or applied the option configuration to the writer object.
-     *
-     * @return void
-     */
-    public function runConfigurator();
 }

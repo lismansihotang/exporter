@@ -88,11 +88,11 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
     private $Reader;
 
     /**
-     * Excel reader type property.
+     * Excel reader and writer type property.
      *
-     * @var string $ReaderType
+     * @var string $ReaderAndWriterType
      */
-    private $ReaderType;
+    private $ReaderAndWriterType;
 
     /**
      * Php excel writer object property.
@@ -107,13 +107,6 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
      * @var array $WriterOptions
      */
     private $WriterOptions = [];
-
-    /**
-     * Excel writer type property.
-     *
-     * @var string $WriterType
-     */
-    private $WriterType;
 
     /**
      * Data collection that contains all the key name of valid styles constraint.
@@ -175,17 +168,33 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
     /**
      * Download the excel document.
      *
+     * @param string $fileName   File name that will be set into downloaded file.
+     * @param string $writerType Excel writer type that will be applied into php excel writer instance.
+     *
+     * @throws \Bridge\Components\Exporter\ExporterException If content type of given writer set is not found.
+     *
      * @return void
      */
-    public function doDownload()
+    public function doDownload($fileName = '', $writerType = 'Excel2007')
     {
-        # Redirect output to a client’s web browser (Excel5).
-        header('Content-Type: application/vnd.ms-excel');
-        header('Content-Disposition: attachment;filename="' . $this->getFileName() . '"');
+        $contentTypeArr = [
+            'Excel2007' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Excel5'    => 'application/vnd.ms-excel'
+        ];
+        # Get the content type string.
+        if (array_key_exists($writerType, $contentTypeArr) === false) {
+            throw new \Bridge\Components\Exporter\ExporterException('Content type of given writer set is not found');
+        } else {
+            $contentType = $contentTypeArr[$writerType];
+        }
+        # Set the default filename if not provided.
+        if (trim($fileName) === '' or $fileName === null) {
+            $fileName = $this->getFileName();
+        }
+        # Set the content type that will sent through the http
+        header('Content-Type: ' . $contentType);
+        header('Content-Disposition: attachment;filename="' . $fileName . '"');
         header('Cache-Control: max-age=0');
-        # If you're serving to IE 9, then the following may be needed.
-        header('Cache-Control: max-age=1');
-        # If you're serving to IE over SSL, then the following may be needed.
         # Set no expire date.
         header('Expires: 0');
         # Set to always modified.
@@ -193,7 +202,7 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
         # Use HTTP/1.1
         header('Cache-Control: cache, must-revalidate');
         header('Pragma: public');
-        $this->doSave('php://output');
+        $this->doSave('php://output', $writerType);
     }
 
     /**
@@ -215,21 +224,24 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
         try {
             $this->setMode('read');
             $this->setLoadedSheets($sheetNames);
-            $this->setReaderType($readerType);
+            $this->setReaderAndWriterType($readerType);
             if ($readFilter !== null) {
                 $this->setReadFilter($readFilter);
             }
             $this->Reader = $this->createReader();
             $this->PhpExcel = $this->Reader->load($this->getFilePath());
             $workSheetIterator = $this->getPhpExcelObject()->getWorksheetIterator();
+            $gridData = [];
             foreach ($workSheetIterator as $worksheet) {
                 $worksheetTitle = $worksheet->getTitle();
+                $worksheetData = [];
                 $objWorkSheet = $this->getPhpExcelObject()->setActiveSheetIndexByName($worksheetTitle);
                 $rowIterator = $objWorkSheet->getRowIterator();
                 foreach ($rowIterator as $row) {
                     $cellIterator = $row->getCellIterator();
                     $rowIndex = $row->getRowIndex();
                     $cellIterator->setIterateOnlyExistingCells(false);
+                    $rowData = [];
                     foreach ($cellIterator as $cell) {
                         /**
                          * Convert cell into php excel cell object.
@@ -237,11 +249,14 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
                          * @var \PhpExcel_Cell $objCell
                          */
                         $objCell = $cell;
-                        $columnIndex = $objCell->getColumn();
-                        $this->Data[$worksheetTitle][$columnIndex][$rowIndex] = $objCell->getValue();
+                        $columnIndex = $this->getColumnIndexFromString($objCell->getColumn());
+                        $rowData['data'][$columnIndex] = $objCell->getValue();
                     }
+                    $worksheetData['contents'][$rowIndex] = $rowData;
                 }
+                $gridData['worksheets'][$worksheetTitle] = $worksheetData;
             }
+            $this->Data = $gridData;
             # Read the excel document using iterator.
         } catch (\PHPExcel_Reader_Exception $ex) {
             throw new \PHPExcel_Reader_Exception($ex->getMessage());
@@ -271,8 +286,8 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
             if (count($options) > 0) {
                 $this->setWriterOptions($options);
             }
-            if (empty(trim($fileName) !== '' or $fileName !== null)) {
-                $this->setFileName($fileName);
+            if (trim($fileName) !== '' and $fileName !== null and $this->getFilePath() !== $fileName) {
+                $this->setFilePath($fileName);
             }
             # Render the data to excel grid.
             $this->doRenderGrid();
@@ -282,34 +297,14 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
                 $this->setMode('update');
             }
             # Crete the excel writer object based on the requirement.
-            $this->setWriterType($writerType);
+            $this->setReaderAndWriterType($writerType);
             $this->Writer = $this->createWriter();
             # Save the excel document.
-            $this->Writer->save($this->getFileName());
+            $this->Writer->save($this->getFilePath());
         } catch (\PHPExcel_Reader_Exception $ex) {
             throw new \PHPExcel_Reader_Exception($ex->getMessage());
         } catch (\PHPExcel_Writer_Exception $ex) {
             throw new \PHPExcel_Writer_Exception($ex->getMessage());
-        } catch (\Exception $ex) {
-            throw new \Bridge\Components\Exporter\ExporterException($ex->getMessage());
-        }
-    }
-
-    /**
-     * Get cell value from given cell coordinate.
-     *
-     * @param integer $column    Column parameter.
-     * @param integer $row       Row parameter.
-     * @param string  $sheetName Sheet name parameter.
-     *
-     * @throws \Bridge\Components\Exporter\ExporterException If the given worksheet not found on php excel instance.
-     *
-     * @return \PhpExcel_Cell
-     */
-    public function getCell($column, $row, $sheetName = '')
-    {
-        try {
-            return $this->getSheet($sheetName)->getCell($this->getCoordinate($column, $row));
         } catch (\Exception $ex) {
             throw new \Bridge\Components\Exporter\ExporterException($ex->getMessage());
         }
@@ -400,9 +395,9 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
      *
      * @return string
      */
-    public function getReaderType()
+    public function getReaderAndWriterType()
     {
-        return $this->ReaderType;
+        return $this->ReaderAndWriterType;
     }
 
     /**
@@ -413,16 +408,6 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
     public function getWriterOptions()
     {
         return $this->WriterOptions;
-    }
-
-    /**
-     * Get excel writer type property.
-     *
-     * @return string
-     */
-    public function getWriterType()
-    {
-        return $this->WriterType;
     }
 
     /**
@@ -462,21 +447,23 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
     }
 
     /**
-     * Set excel reader type property.
+     * Set excel reader and writer type property.
      *
-     * @param string $readerType The excel reader type parameter.
+     * @param string $readerAndWriterType The excel reader and writer type parameter.
      *
-     * @throws \Bridge\Components\Exporter\ExporterException If reader type that given is not supported.
+     * @throws \Bridge\Components\Exporter\ExporterException If reader and writer type that given is not supported.
      *
      * @return void
      */
-    public function setReaderType($readerType)
+    public function setReaderAndWriterType($readerAndWriterType)
     {
         $supportedReader = ['Excel2007', 'OOCalc', 'CSV', 'Excel5', 'Excel2003XML'];
-        if (in_array($readerType, $supportedReader, true) === false) {
-            throw new \Bridge\Components\Exporter\ExporterException('Reader type that given is not supported yet');
+        if (in_array($readerAndWriterType, $supportedReader, true) === false) {
+            throw new \Bridge\Components\Exporter\ExporterException(
+                'Reader and writer type that given is not supported yet'
+            );
         }
-        $this->ReaderType = $readerType;
+        $this->ReaderAndWriterType = $readerAndWriterType;
     }
 
     /**
@@ -489,24 +476,6 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
     public function setWriterOptions(array $writerOptions = [])
     {
         $this->WriterOptions = $writerOptions;
-    }
-
-    /**
-     * Set excel writer type property.
-     *
-     * @param string $writerType Excel writer type parameter.
-     *
-     * @throws \Bridge\Components\Exporter\ExporterException If unsupported writer type given.
-     *
-     * @return void
-     */
-    public function setWriterType($writerType)
-    {
-        $supportedReader = ['Excel2007', 'OOCalc', 'CSV', 'Excel5', 'Excel2003XML'];
-        if (in_array($writerType, $supportedReader, true) === false) {
-            throw new \Bridge\Components\Exporter\ExporterException('Writer type that given is not supported yet');
-        }
-        $this->WriterType = $writerType;
     }
 
     /**
@@ -524,7 +493,7 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
              *
              * @var \Bridge\Components\Exporter\Contracts\ExcelReaderInterface|\PHPExcel_Reader_Abstract $objReader
              */
-            $objReader = \PHPExcel_IOFactory::createReader($this->getReaderType());
+            $objReader = \PHPExcel_IOFactory::createReader($this->getReaderAndWriterType());
             if ($this->getReadFilter() !== null) {
                 $objReader->setReadFilter($this->getReadFilter());
             }
@@ -553,11 +522,13 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
     protected function createWriter()
     {
         try {
-            $objWriter = \PHPExcel_IOFactory::createWriter($this->getPhpExcelObject(), $this->getWriterType());
-            \Bridge\Components\Exporter\WriterOptions\ExcelWriterOptionFactory::createOption(
-                $objWriter,
-                $this->getWriterOptions()
-            )->runConfigurator();
+            $objWriter = \PHPExcel_IOFactory::createWriter($this->getPhpExcelObject(), $this->getReaderAndWriterType());
+            if (count($this->getWriterOptions()) > 0) {
+                \Bridge\Components\Exporter\WriterOptions\ExcelWriterOptionFactory::createOption(
+                    $objWriter,
+                    $this->getWriterOptions()
+                )->runConfigurator();
+            }
             return $objWriter;
         } catch (\PHPExcel_Writer_Exception $ex) {
             throw new \PHPExcel_Reader_Exception($ex->getMessage());
@@ -567,17 +538,13 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
     /**
      * Convert BR tags to nl.
      *
-     * @param array $originalArray The string to convert.
+     * @param string $value The string to convert.
      *
-     * @return array The converted values of the array.
+     * @return string The converted values.
      */
-    protected function doConvertBrToNl(array $originalArray)
+    protected function doConvertBrToNl($value)
     {
-        $returnArray = [];
-        foreach ($originalArray as $key => $value) {
-            $returnArray[$key] = preg_replace('/\<br(\s*)?\/?\>/i', "\r\n", $value);
-        }
-        return $returnArray;
+        return preg_replace('/\<br(\s*)?\/?\>/i', "\r\n", $value);
     }
 
     /**
@@ -626,6 +593,26 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
     }
 
     /**
+     * Get cell value from given cell coordinate.
+     *
+     * @param integer $column    Column parameter.
+     * @param integer $row       Row parameter.
+     * @param string  $sheetName Sheet name parameter.
+     *
+     * @throws \Bridge\Components\Exporter\ExporterException If the given worksheet not found on php excel instance.
+     *
+     * @return \PhpExcel_Cell
+     */
+    protected function getCell($column, $row, $sheetName = '')
+    {
+        try {
+            return $this->getSheet($sheetName)->getCell($this->getCoordinate($column, $row));
+        } catch (\Exception $ex) {
+            throw new \Bridge\Components\Exporter\ExporterException($ex->getMessage());
+        }
+    }
+
+    /**
      * Get cell security instance.
      *
      * @param string $coordinate Selected coordinate parameter.
@@ -636,6 +623,24 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
     protected function getCellSecurity($coordinate = 'A1', $sheetName = '')
     {
         return $this->getStyle($coordinate, $sheetName)->getProtection();
+    }
+
+    /**
+     * Get column index from string.
+     *
+     * @param string $column The column string parameter.
+     *
+     * @throws \PHPExcel_Exception If invalid column string name.
+     *
+     * @return integer
+     */
+    protected function getColumnIndexFromString($column = 'A')
+    {
+        try {
+            return \PHPExcel_Cell::columnIndexFromString($column);
+        } catch (\PHPExcel_Exception $ex) {
+            throw new \PHPExcel_Exception($ex->getMessage());
+        }
     }
 
     /**
@@ -779,7 +784,7 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
      */
     protected function getSheet($sheetTitle = '')
     {
-        if (trim($sheetTitle) !== '' or $sheetTitle !== null) {
+        if (trim($sheetTitle) !== '' and $sheetTitle !== null) {
             $objWorksheet = $this->getPhpExcelObject()->getSheetByName($sheetTitle);
             if ($objWorksheet === null) {
                 throw new \Bridge\Components\Exporter\ExporterException('Worksheet not found!');
@@ -799,7 +804,7 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
      *
      * @return integer
      */
-    protected function getSheetIndex($sheetName)
+    protected function getSheetIndex($sheetName = '')
     {
         try {
             # Get the worksheet instance from sheet name.
@@ -832,8 +837,9 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
      *
      * @param integer $column The column number.
      *
-     * @return string
      * @throws \PHPExcel_Exception If invalid column number.
+     *
+     * @return string
      */
     protected function getStringFromColumnIndex($column = 0)
     {
@@ -950,6 +956,7 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
      * @param string $mode Action mode parameter.
      *
      * @throws \Bridge\Components\Exporter\ExporterException If invalid mode given.
+     * @throws \Bridge\Components\Exporter\ExporterException If file cannot opened or not exists or not readable.
      *
      * @return void
      */
@@ -959,6 +966,46 @@ abstract class AbstractExcelFile implements Contracts\ExcelReaderInterface, Cont
         if (in_array(strtolower($mode), $validMode, true) === false) {
             throw new \Bridge\Components\Exporter\ExporterException('Invalid mode!');
         }
+        $filePath = $this->getFilePath();
+        if ((is_readable($filePath) === false or is_file($filePath) === false or file_exists($filePath) === false) and
+            in_array($mode, ['read', 'update'], true) === true
+        ) {
+            throw new \Bridge\Components\Exporter\ExporterException(
+                'Cannot set correct mode, please verify that the file can opened/exists/readable
+                '
+            );
+        }
         $this->Mode = $mode;
+    }
+
+    /**
+     * Validate the given styles array data that will be applied into cells.
+     *
+     * @param array $styles Styles array data parameter.
+     *
+     * @return boolean
+     */
+    protected function validateGridStyles(array $styles = [])
+    {
+        $validStyleKeys = array_keys(static::$ValidStyle);
+        foreach ($validStyleKeys as $key) {
+            $validStyleItemKeys = static::$ValidStyle[$key];
+            if (array_key_exists($key, $styles) === true) {
+                $givenStyleItemKeys = array_keys($styles[$key]);
+                foreach ($givenStyleItemKeys as $givenKey) {
+                    if (in_array($givenKey, $validStyleItemKeys, true) === false) {
+                        return false;
+                    }
+                    $itemKey = array_search($givenKey, static::$ValidStyle[$key], true);
+                    $validStyleItemValues = static::$ValidStyle[$key][$itemKey];
+                    if (is_array($validStyleItemValues) === true and
+                        in_array($styles[$key][$givenKey], $validStyleItemValues, true) === false
+                    ) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 }

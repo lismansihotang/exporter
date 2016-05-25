@@ -25,6 +25,18 @@ interface ExcelWriterInterface
 {
 
     /**
+     * Download the excel document.
+     *
+     * @param string $fileName   File name that will be set into downloaded file.
+     * @param string $writerType Excel writer type that will be applied into php excel writer instance.
+     *
+     * @throws \Bridge\Components\Exporter\ExporterException If content type of given writer set is not found.
+     *
+     * @return void
+     */
+    public function doDownload($fileName = '', $writerType = 'Excel2007');
+
+    /**
      * Save the excel file document.
      *
      * @param string $fileName   File name parameter.

@@ -29,7 +29,7 @@ class DbDataSource implements \Bridge\Components\Exporter\Contracts\DataSourceIn
      *
      * @param array $data Data that will be updated into data source.
      *
-     * @return boolean
+     * @return void
      */
     public function doMassImport(array $data)
     {

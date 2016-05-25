@@ -35,12 +35,11 @@ class BasicExcelFile extends \Bridge\Components\Exporter\AbstractExcelFile
      *
      * @return void
      */
-    public function addRow(array $row, $sheetName = '0', $gridType = 'content')
+    public function addRow(array $row, $sheetName = '', $gridType = 'contents')
     {
         try {
             $nextGridRow = $this->getNextGridRow($sheetName, $gridType);
-            $filteredValue = array_walk(array_values($row), 'doConvertBrToNl');
-            $this->Grid['worksheet'][$sheetName][$gridType][$nextGridRow] = $filteredValue;
+            $this->Grid['worksheets'][$sheetName][$gridType][$nextGridRow] = $this->checkGridRows($row);
         } catch (\Exception $ex) {
             throw new \Bridge\Components\Exporter\ExporterException($ex->getMessage());
         }
@@ -55,6 +54,7 @@ class BasicExcelFile extends \Bridge\Components\Exporter\AbstractExcelFile
      */
     public function doPrinting(array $options = [])
     {
+        # Applied the options to the excel object.
     }
 
     /**
@@ -68,13 +68,15 @@ class BasicExcelFile extends \Bridge\Components\Exporter\AbstractExcelFile
      *
      * @return integer Returns the next grid row number
      */
-    public function getNextGridRow($sheetName = '0', $gridType = 'content')
+    public function getNextGridRow($sheetName = '', $gridType = 'contents')
     {
         try {
-            if ($this->validateGridWorkSheet($sheetName) === false or $this->validateGridType($gridType) === false) {
+            if (array_key_exists($sheetName, $this->getGrid()['worksheets']) === false or
+                $this->validateGridType($gridType) === false
+            ) {
                 throw new \Bridge\Components\Exporter\ExporterException('Cannot get next grid row number');
             }
-            return count($this->Grid['worksheet'][$sheetName][$gridType]);
+            return max(array_keys($this->Grid['worksheets'][$sheetName][$gridType])) + 1;
         } catch (\Exception $ex) {
             throw new \Bridge\Components\Exporter\ExporterException($ex->getMessage());
         }
@@ -85,10 +87,24 @@ class BasicExcelFile extends \Bridge\Components\Exporter\AbstractExcelFile
      *
      * @param array $grid The complete grid.
      *
+     * @throws \Bridge\Components\Exporter\ExporterException If worksheet not found at given grid data.
+     *
      * @return void
      */
     public function setGrid(array $grid)
     {
+        if (array_key_exists('worksheets', $grid) === false) {
+            throw new \Bridge\Components\Exporter\ExporterException('Worksheet not found at given grid data');
+        }
+        # Start to looping under the sheet and convert the cell values if br tag found.
+        foreach ($grid['worksheets'] as $sheetKey => $sheetData) {
+            foreach ($sheetData as $groupKey => $groupData) {
+                foreach ($groupData as $rowKey => $rowData) {
+                    $rowData = $this->checkGridRows($rowData);
+                    $this->Grid['worksheets'][$sheetKey][$groupKey][$rowKey] = $rowData;
+                }
+            }
+        }
         $this->Grid = $grid;
     }
 
@@ -99,9 +115,11 @@ class BasicExcelFile extends \Bridge\Components\Exporter\AbstractExcelFile
      */
     protected function doRenderGrid()
     {
-        $gridData = $this->getGrid();
-        if ($this->validateGridData($gridData) === true) {
-            $gridWorksheet = (array)$gridData['worksheet'];
+        if (count($this->getGrid()) > 0) {
+            # Remove the default worksheet.
+            $this->getPhpExcelObject()->removeSheetByIndex($this->getSheetIndex());
+            $gridData = $this->getGrid();
+            $gridWorksheet = (array)$gridData['worksheets'];
             $objPhpExcel = $this->getPhpExcelObject();
             $worksheetIndex = 0;
             foreach ($gridWorksheet as $sheetKey => $sheetData) {
@@ -111,26 +129,22 @@ class BasicExcelFile extends \Bridge\Components\Exporter\AbstractExcelFile
                     $sheetKeyAsString = 'sheet' . $sheetKey;
                 }
                 $objWorksheet = new \PHPExcel_Worksheet($objPhpExcel, $sheetKeyAsString);
+                # Or you can use $objWorksheet = $this->getPhpExcelObject()->createSheet();
                 $objWorksheet->setTitle($sheetKeyAsString);
                 # Attach the worksheet to php excel object.
                 $objPhpExcel->addSheet($objWorksheet, $worksheetIndex);
                 $objPhpExcel->setActiveSheetIndex($worksheetIndex);
                 # Parse all the sheet data to variable.
-                # Process and render the header data.
-                if (array_key_exists('header', $sheetData) === true) {
-                    $this->doRenderGridItems($sheetData['header']);
+                # Process and render the sheet data.
+                if (array_key_exists('contents', $sheetData) === true) {
+                    $this->doRenderGridItems($sheetData['contents']);
                 }
-                if (array_key_exists('content', $sheetData) === true) {
-                    $this->doRenderGridItems($sheetData['content']);
-                }
-                if (array_key_exists('footer', $sheetData) === true) {
-                    $this->doRenderGridItems($sheetData['footer']);
-                }
+                # worksheet index increment to set the active sheet.
                 $worksheetIndex++;
             }
+            # Remove all the grid content after rendering the grid.
+            $this->doUnsetGrid();
         }
-        # Remove all the grid content after rendering the grid.
-        $this->doUnsetGrid();
     }
 
     /**
@@ -145,16 +159,42 @@ class BasicExcelFile extends \Bridge\Components\Exporter\AbstractExcelFile
     protected function doRenderGridItems(array $gridItems)
     {
         try {
-            if (array_key_exists('data', $gridItems) === true) {
-                foreach ($gridItems['data'] as $rowNumber => $rows) {
-                    foreach ($rows as $columnNumber => $value) {
-                        $this->getSheet()->getColumnDimension($columnNumber)->setAutoSize(true);
+            # Loop under the grid items.
+            foreach ($gridItems as $rowNumber => $gridRow) {
+                $gridRowStyles = [];
+                # Check if there is a grid row cell range styles data and then validate that styles array.
+                if (array_key_exists('styles', $gridRow) === true and
+                    $this->validateGridStyles($gridRow['styles']) === true
+                ) {
+                    $gridRowStyles = $gridRow['styles'];
+                }
+                # Check if the data key exists on every grid row.
+                if (array_key_exists('data', $gridRow) === true) {
+                    foreach ($gridRow['data'] as $columnNumber => $value) {
+                        $selectedColumnNumber = $this->getStringFromColumnIndex($columnNumber);
+                        $this->getSheet()->getColumnDimension($selectedColumnNumber)->setAutoSize(true);
                         $cellData = $value;
+                        # Convert the cell data into standard array so it will be more easy to process the rendering.
                         if (is_array($cellData) === false) {
-                            $cellData = ['data' => $value];
+                            $cellData = ['value' => $value];
                         }
-                        if ($this->validateGridItem($cellData) === true) {
-                            $this->setCell($cellData['data'], $columnNumber, $rowNumber);
+                        # Apply the grid cell range style for each cell.
+                        if (count($gridRowStyles) > 0) {
+                            $this->getStyle($this->getCoordinate($columnNumber, $rowNumber))->applyFromArray(
+                                $gridRowStyles
+                            );
+                        }
+                        # Apply the individual cell styles data.
+                        if (array_key_exists('styles', $cellData) === true and
+                            $this->validateGridStyles($cellData['styles']) === true
+                        ) {
+                            $this->getStyle($this->getCoordinate($columnNumber, $rowNumber))->applyFromArray(
+                                $cellData['styles']
+                            );
+                        }
+                        # Set the value into selected cell.
+                        if (array_key_exists('value', $cellData) === true) {
+                            $this->setCell($cellData['value'], $columnNumber, $rowNumber);
                         }
                     }
                 }
@@ -165,31 +205,29 @@ class BasicExcelFile extends \Bridge\Components\Exporter\AbstractExcelFile
     }
 
     /**
-     * Validate the given grid data.
+     * Process to convert break line to new line for passed cell.
      *
-     * @param array $gridData
+     * @param array $rowData Rows data parameter.
      *
-     * @return boolean
+     * @return array
      */
-    private function validateGridData(array $gridData)
+    private function checkGridRows(array $rowData)
     {
-    }
-
-    /**
-     * Validate the grid item content.
-     *
-     * @param array $gridItem Grid item data array parameter.
-     *
-     * @throws \Bridge\Components\Exporter\ExporterException If invalid grid item given.
-     *
-     * @return boolean
-     */
-    private function validateGridItem(array $gridItem)
-    {
-        if (array_key_exists('data', $gridItem) === false) {
-            throw new \Bridge\Components\Exporter\ExporterException('Invalid grid item');
+        # Check first if data key exists on passed row data array.
+        if (array_key_exists('data', $rowData) === true) {
+            $rowArr = $rowData['data'];
+            foreach ($rowArr as $column => $cell) {
+                # Check if the cell variable is array or not, and then convert the cell value.
+                if (is_array($cell) === true and array_key_exists('value', $cell) === true) {
+                    $cell['value'] = $this->doConvertBrToNl($cell['value']);
+                } else {
+                    $cell = $this->doConvertBrToNl($cell);
+                }
+                $rowData['data'][$column] = $cell;
+            }
         }
-        return true;
+        # Return the row data.
+        return $rowData;
     }
 
     /**
@@ -203,26 +241,9 @@ class BasicExcelFile extends \Bridge\Components\Exporter\AbstractExcelFile
      */
     private function validateGridType($gridType)
     {
-        $validGridType = ['header', 'content', 'footer'];
+        $validGridType = ['header', 'contents', 'footer'];
         if (in_array($gridType, $validGridType, true) === false) {
             throw new \Bridge\Components\Exporter\ExporterException('Invalid grid type');
-        }
-        return true;
-    }
-
-    /**
-     * Validate the grid worksheet if exist or not.
-     *
-     * @param string $sheetName Sheet name parameter.
-     *
-     * @throws \Bridge\Components\Exporter\ExporterException If selected worksheet not exists.
-     *
-     * @return boolean
-     */
-    private function validateGridWorkSheet($sheetName)
-    {
-        if (array_key_exists($sheetName, $this->getGrid()['worksheet']) === false) {
-            throw new \Bridge\Components\Exporter\ExporterException('Selected worksheet not exist on grid');
         }
         return true;
     }

@@ -29,18 +29,16 @@ interface DataSourceInterface
      *
      * @param array $data Data that will be updated into data source.
      *
-     * @return boolean
+     * @return void
      */
     public function doMassImport(array $data);
 
     /**
      * Get resource data.
      *
-     * @param array $fieldFilters Array field filters data parameter.
-     *
      * @return array
      */
-    public function getData(array $fieldFilters = []);
+    public function getData();
 
     /**
      * Get field lists from data source.
