@@ -136,8 +136,8 @@ abstract class AbstractExcelReadFilter implements \Bridge\Components\Exporter\Co
         if ($this->getEndRow() !== null and $row > $this->getEndRow()) {
             return false;
         }
-        return (count($this->getColumns()) !== 0 and $this->getColumns() !== null and
-            in_array($column, $this->getColumns(), true) === true);
+        return !(count($this->getColumns()) !== 0 and $this->getColumns() !== null and
+            in_array($column, $this->getColumns(), true) === false);
     }
 
     /**

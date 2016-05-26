@@ -111,29 +111,15 @@ class ExcelDataSource implements \Bridge\Components\Exporter\Contracts\DataSourc
     public function getData(array $sheetFilters = [])
     {
         $filteredData = $this->Data;
-        if ($this->isMultipleSource() === true and array_key_exists('worksheets', $filteredData) === true) {
-            $sheetsData = $filteredData['worksheets'];
-            $existingSheets = array_keys($sheetsData);
+        if (count(array_filter($sheetFilters)) > 0 and $this->isMultipleSource() === true) {
+            $existingSheets = array_keys($filteredData);
             foreach ($existingSheets as $sheetName) {
                 if (in_array($sheetName, $sheetFilters, true) === false) {
-                    unset($filteredData['worksheets'][$sheetName]);
+                    unset($filteredData[$sheetName]);
                 }
             }
         }
         return $filteredData;
-    }
-
-    /**
-     * Get field read filter object.
-     *
-     * @return \Bridge\Components\Exporter\ExcelEntityFieldsReadFilter
-     */
-    public function getFieldReadFilter()
-    {
-        if ($this->FieldReadFilter === null) {
-            $this->FieldReadFilter = new \Bridge\Components\Exporter\ExcelEntityFieldsReadFilter(1);
-        }
-        return $this->FieldReadFilter;
     }
 
     /**
@@ -144,16 +130,6 @@ class ExcelDataSource implements \Bridge\Components\Exporter\Contracts\DataSourc
     public function getFields()
     {
         return $this->Fields;
-    }
-
-    /**
-     * Get record read filter instance.
-     *
-     * @return \Bridge\Components\Exporter\ExcelEntityRecordReadFilter
-     */
-    public function getRecordReadFilter()
-    {
-        return $this->RecordReadFilter;
     }
 
     /**
@@ -171,9 +147,13 @@ class ExcelDataSource implements \Bridge\Components\Exporter\Contracts\DataSourc
      *
      * @return void
      */
-    public function load()
+    public function doLoad()
     {
-        $this->getExcelFileObject()->doRead($this->getFieldReadFilter());
+        # Set the default field read filter if no given.
+        if ($this->getFieldReadFilter() === null) {
+            $this->setFieldReadFilter(1);
+        }
+        $this->getExcelFileObject()->doRead();
         $excelFileDataArr = $this->getExcelFileObject()->getData();
         if (array_key_exists('worksheets', $excelFileDataArr) === true) {
             $worksheetData = $excelFileDataArr['worksheets'];
@@ -181,19 +161,43 @@ class ExcelDataSource implements \Bridge\Components\Exporter\Contracts\DataSourc
                 $this->setMultipleSource(true);
             }
         }
-        $this->setData($excelFileDataArr);
+        # Get the fields data.
+        # Build the recordSet data by grouping the fields column as the index key.
+        $fields = [];
+        $data = [];
+        foreach ($excelFileDataArr as $worksheets) {
+            foreach ((array)$worksheets as $sheetName => $sheet) {
+                foreach ($sheet['contents'] as $rowNumber => $rowGroup) {
+                    foreach ($rowGroup['data'] as $columnNumber => $cell) {
+                        if ($rowNumber === $this->FieldReadFilter->getStartRow()) {
+                            $fields[$sheetName][$columnNumber] = $cell;
+                        } else {
+                            $data[$sheetName][$fields[$sheetName][$columnNumber]] = $cell;
+                        }
+                    }
+                }
+            }
+        }
+        $this->setFields($fields);
+        $this->setData($data);
     }
 
     /**
      * Set field read filter object property.
      *
-     * @param \Bridge\Components\Exporter\ExcelEntityFieldsReadFilter $fieldReadFilter Field read filter object.
+     * @param integer $startRow      Field row number parameter.
+     * @param array   $columns       Column range data parameter.
+     * @param string  $workSheetName Work sheet name parameter.
      *
      * @return void
      */
-    public function setFieldReadFilter(\Bridge\Components\Exporter\ExcelEntityFieldsReadFilter $fieldReadFilter)
+    public function setFieldReadFilter($startRow, array $columns = [], $workSheetName = '')
     {
-        $this->FieldReadFilter = $fieldReadFilter;
+        $this->FieldReadFilter = new \Bridge\Components\Exporter\ExcelEntityFieldsReadFilter(
+            $startRow,
+            $columns,
+            $workSheetName
+        );
         $this->RecordReadFilter = new \Bridge\Components\Exporter\ExcelEntityRecordReadFilter($this->FieldReadFilter);
     }
 
@@ -208,6 +212,26 @@ class ExcelDataSource implements \Bridge\Components\Exporter\Contracts\DataSourc
     }
 
     /**
+     * Get field read filter object.
+     *
+     * @return \Bridge\Components\Exporter\ExcelEntityFieldsReadFilter
+     */
+    protected function getFieldReadFilter()
+    {
+        return $this->FieldReadFilter;
+    }
+
+    /**
+     * Get record read filter instance property.
+     *
+     * @return \Bridge\Components\Exporter\ExcelEntityRecordReadFilter
+     */
+    protected function getRecordReadFilter()
+    {
+        return $this->RecordReadFilter;
+    }
+
+    /**
      * Set record set data from excel data source.
      *
      * @param array $data Data array that contain record set parameter.
@@ -217,6 +241,18 @@ class ExcelDataSource implements \Bridge\Components\Exporter\Contracts\DataSourc
     protected function setData(array $data = [])
     {
         $this->Data = $data;
+    }
+
+    /**
+     * Set fields property
+     *
+     * @param array $fields Fields data array parameter.
+     *
+     * @return void
+     */
+    protected function setFields($fields)
+    {
+        $this->Fields = $fields;
     }
 
     /**

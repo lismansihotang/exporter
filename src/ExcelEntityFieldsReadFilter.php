@@ -27,21 +27,17 @@ class ExcelEntityFieldsReadFilter extends \Bridge\Components\Exporter\AbstractEx
     /**
      * ExcelEntityFieldsReadFilter constructor.
      *
-     * @param integer $startRow      Start cell row number parameter.
-     * @param integer $endRow        End cell row number parameter.
+     * @param integer $rowNumber     Field row number parameter.
      * @param array   $columns       Column range data parameter.
      * @param string  $workSheetName Work sheet name parameter.
      *
      * @throws \Bridge\Components\Exporter\ExporterException If multiple number of row that given.
      */
-    public function __construct($startRow, $endRow = null, array $columns = [], $workSheetName = '')
+    public function __construct($rowNumber = 1, array $columns = [], $workSheetName = '')
     {
-        if ($startRow !== $endRow and $endRow !== null) {
-            throw new \Bridge\Components\Exporter\ExporterException('Entity fields only can read on one single row');
-        }
-        if (trim($workSheetName) !== '' and $workSheetName !== null) {
+        if ($workSheetName !== null and trim($workSheetName) !== '') {
             $this->setWorkSheetName($workSheetName);
         }
-        parent::__construct($startRow, $endRow, $columns);
+        parent::__construct($rowNumber, $rowNumber, $columns);
     }
 }
