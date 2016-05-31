@@ -32,9 +32,16 @@ class FieldElement implements \Bridge\Components\Exporter\Contracts\FieldElement
     private $Constraints;
 
     /**
+     * Field default value property.
+     *
+     * @var mixed $DefaultValue
+     */
+    private $DefaultValue;
+
+    /**
      * Field length property.
      *
-     * @var integer $FieldLength
+     * @var mixed $FieldLength
      */
     private $FieldLength;
 
@@ -48,7 +55,7 @@ class FieldElement implements \Bridge\Components\Exporter\Contracts\FieldElement
     /**
      * Field type property.
      *
-     * @var string $FieldType
+     * @var \Bridge\Components\Exporter\Contracts\FieldTypeInterface $FieldType
      */
     private $FieldType;
 
@@ -72,25 +79,10 @@ class FieldElement implements \Bridge\Components\Exporter\Contracts\FieldElement
      * @var array $ValidFieldConstraints
      */
     protected static $ValidFieldConstraints = [
-        'primaryKey'  => 'setAsPrimary',
-        'fieldType'   => 'setFieldType',
-        'required'    => 'setRequired',
-        'fieldLength' => 'setFieldLength',
-        'default'     => 'setDefaultValue',
-        'foreignKey'  => 'setDependency'
-    ];
-
-    /**
-     * Field type constraint data mapper property.
-     *
-     * @var array $FieldTypeMapper
-     */
-    protected static $FieldTypeMapper = [
-        'string' => \Bridge\Components\Exporter\Contracts\FieldElementInterface::FIELD_TYPE_STRING,
-        'char'   => \Bridge\Components\Exporter\Contracts\FieldElementInterface::FIELD_TYPE_CHAR,
-        'number' => \Bridge\Components\Exporter\Contracts\FieldElementInterface::FIELD_TYPE_NUMBER,
-        'date'   => \Bridge\Components\Exporter\Contracts\FieldElementInterface::FIELD_TYPE_DATE,
-        'enum'   => \Bridge\Components\Exporter\Contracts\FieldElementInterface::FIELD_TYPE_ENUM
+        'primaryKey' => 'setAsPrimary',
+        'fieldType'  => 'setFieldType',
+        'required'   => 'setRequired',
+        'foreignKey' => 'setDependency'
     ];
 
     /**
@@ -149,6 +141,26 @@ class FieldElement implements \Bridge\Components\Exporter\Contracts\FieldElement
     }
 
     /**
+     * Get field default value property.
+     *
+     * @return mixed
+     */
+    public function getDefaultValue()
+    {
+        return $this->getFieldTypeObject()->getDefaultValue();
+    }
+
+    /**
+     * Get the field length property.
+     *
+     * @return mixed
+     */
+    public function getFieldLength()
+    {
+        return $this->getFieldTypeObject()->getFieldLength();
+    }
+
+    /**
      * Get the field name property
      *
      * @return string
@@ -159,30 +171,23 @@ class FieldElement implements \Bridge\Components\Exporter\Contracts\FieldElement
     }
 
     /**
-     * Get field type constraints data property.
+     * Get the field type name property.
      *
-     * @return array
+     * @return string
      */
-    public static function getFieldTypeConstraints()
+    public function getFieldType()
     {
-        return array_keys(static::$FieldTypeMapper);
+        return $this->getFieldTypeObject()->getTypeName();
     }
 
     /**
-     * Map the given field type to the correct number that registered on the mapper data property.
+     * Get the field type instance property.
      *
-     * @param string $fieldType Field type parameter.
-     *
-     * @throws \Bridge\Components\Exporter\ExporterException If invalid type given.
-     *
-     * @return integer
+     * @return \Bridge\Components\Exporter\Contracts\FieldTypeInterface
      */
-    public static function getFieldTypeMapper($fieldType)
+    public function getFieldTypeObject()
     {
-        if (in_array(strtolower($fieldType), static::$FieldTypeMapper, true) === true) {
-            return static::$FieldTypeMapper[strtolower($fieldType)];
-        }
-        throw new \Bridge\Components\Exporter\ExporterException('Invalid field type given');
+        return $this->FieldType;
     }
 
     /**
@@ -239,18 +244,6 @@ class FieldElement implements \Bridge\Components\Exporter\Contracts\FieldElement
     }
 
     /**
-     * Set field default value.
-     *
-     * @param string $defaultValue Default value parameter.
-     *
-     * @return void
-     */
-    public function setDefaultValue($defaultValue = '')
-    {
-        $this->Constraints['default'] = $defaultValue;
-    }
-
-    /**
      * Set field dependency.
      *
      * @param \Bridge\Components\Exporter\FieldElement $dependencyFieldName Dependency field name parameter.
@@ -260,52 +253,6 @@ class FieldElement implements \Bridge\Components\Exporter\Contracts\FieldElement
     public function setDependency(\Bridge\Components\Exporter\FieldElement $dependencyFieldName)
     {
         $this->Constraints['foreignKey'] = $dependencyFieldName;
-    }
-
-    /**
-     * Set field enum data property.
-     *
-     * @param array $enumData Enum data array parameter.
-     *
-     * @return void
-     */
-    public function setEnum(array $enumData)
-    {
-        $this->Constraints['fieldType'] = 'enum';
-        $this->Constraints['fieldLength'] = $enumData;
-    }
-
-    /**
-     * Set field basic information property.
-     *
-     * @param string $fieldType   Field type parameter.
-     * @param mixed  $fieldLength Field length parameter.
-     *
-     * @throws \Bridge\Components\Exporter\ExporterException If any error raised when set the field property.
-     *
-     * @return void
-     */
-    public function setField($fieldType, $fieldLength = null)
-    {
-        try {
-            $this->setFieldType($fieldType);
-            $this->setFieldLength($fieldLength);
-        } catch (\Exception $ex) {
-            throw new \Bridge\Components\Exporter\ExporterException($ex->getMessage());
-        }
-    }
-
-    /**
-     * Set field length property.
-     *
-     * @param integer $fieldLength Field length parameter.
-     *
-     * @return void
-     */
-    public function setFieldLength($fieldLength = null)
-    {
-        $this->Constraints['fieldLength'] = (integer)$fieldLength;
-        $this->FieldLength = (integer)$fieldLength;
     }
 
     /**
@@ -323,19 +270,30 @@ class FieldElement implements \Bridge\Components\Exporter\Contracts\FieldElement
     /**
      * Set field type property.
      *
-     * @param string $fieldType Field type parameter.
+     * @param array $fieldTypeData Field type data parameter.
      *
-     * @throws \Bridge\Components\Exporter\ExporterException If invalid field element type given.
+     * @throws \Bridge\Components\Exporter\ExporterException If any errors raised when set the field type.
      *
      * @return void
      */
-    public function setFieldType($fieldType)
+    public function setFieldType(array $fieldTypeData)
     {
-        if (in_array($fieldType, static::getFieldTypeConstraints(), true) === false) {
-            throw new \Bridge\Components\Exporter\ExporterException('Invalid field element type given: ' . $fieldType);
+        try {
+            $fieldTypeDataTemplate = ['type' => null, 'length' => null, 'default' => null];
+            $fieldTypeData = array_merge($fieldTypeDataTemplate, $fieldTypeData);
+            $fieldTypeFactory = new \Bridge\Components\Exporter\FieldTypes\FieldTypesFactory();
+            $fieldTypeObject = $fieldTypeFactory->createType(
+                $fieldTypeData['type'],
+                $fieldTypeData['length'],
+                $fieldTypeData['default']
+            );
+            $this->Constraints['fieldType'] = $fieldTypeObject;
+            $this->FieldType = $fieldTypeObject;
+            $this->FieldLength = $fieldTypeData['length'];
+            $this->DefaultValue = $fieldTypeData['default'];
+        } catch (\Exception $ex) {
+            throw new \Bridge\Components\Exporter\ExporterException($ex->getMessage());
         }
-        $this->Constraints['fieldType'] = $fieldType;
-        $this->FieldType = $fieldType;
     }
 
     /**

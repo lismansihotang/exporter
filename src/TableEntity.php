@@ -25,6 +25,13 @@ class TableEntity implements \Bridge\Components\Exporter\Contracts\TableEntityIn
 {
 
     /**
+     * Table entity data array property.
+     *
+     * @var array $Data
+     */
+    private $Data;
+
+    /**
      * Fields data property.
      *
      * @var array $Fields
@@ -62,6 +69,16 @@ class TableEntity implements \Bridge\Components\Exporter\Contracts\TableEntityIn
     }
 
     /**
+     * Get table entity data property.
+     *
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->Data;
+    }
+
+    /**
      * Get selected field property.
      *
      * @param string $fieldName Field name parameter.
@@ -94,6 +111,18 @@ class TableEntity implements \Bridge\Components\Exporter\Contracts\TableEntityIn
     public function getName()
     {
         return $this->Name;
+    }
+
+    /**
+     * Set the table entity data array property.
+     *
+     * @param array $data Array data of entity parameter.
+     *
+     * @return void
+     */
+    public function setData(array $data = [])
+    {
+        $this->Data = $data;
     }
 
     /**

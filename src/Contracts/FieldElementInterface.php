@@ -25,41 +25,6 @@ interface FieldElementInterface
 {
 
     /**
-     * Enumeration field type.
-     *
-     * @constant integer FIELD_TYPE_ENUM
-     */
-    const FIELD_TYPE_ENUM = 0;
-
-    /**
-     * String field type.
-     *
-     * @constant integer FIELD_TYPE_STRING
-     */
-    const FIELD_TYPE_STRING = 1;
-
-    /**
-     * Number field type.
-     *
-     * @constant integer FIELD_TYPE_NUMBER
-     */
-    const FIELD_TYPE_NUMBER = 2;
-
-    /**
-     * Date field type.
-     *
-     * @constant integer FIELD_TYPE_DATE
-     */
-    const FIELD_TYPE_DATE = 3;
-
-    /**
-     * Character field type.
-     *
-     * @constant string FIELD_TYPE_CHAR
-     */
-    const FIELD_TYPE_CHAR = 4;
-
-    /**
      * Get data constraints array property.
      *
      * @return array
@@ -72,13 +37,6 @@ interface FieldElementInterface
      * @return string
      */
     public function getFieldName();
-
-    /**
-     * Get field type constraints data property.
-     *
-     * @return array
-     */
-    public static function getFieldTypeConstraints();
 
     /**
      * Get primary key state property.

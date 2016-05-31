@@ -53,13 +53,6 @@ abstract class AbstractEntityBuilder
     protected $FieldMapper = [];
 
     /**
-     * Field type mapper data property.
-     *
-     * @var array
-     */
-    protected $FieldTypeMapper = [];
-
-    /**
      * AbstractEntityBuilder constructor.
      *
      * @param \Bridge\Components\Exporter\Contracts\DataSourceInterface $dataSource Data source instance parameter.
@@ -154,28 +147,6 @@ abstract class AbstractEntityBuilder
     }
 
     /**
-     * Get the field type mapper data property.
-     *
-     * @return array
-     */
-    public function getFieldTypeMapper()
-    {
-        return $this->FieldTypeMapper;
-    }
-
-    /**
-     * Set field type mapper data property.
-     *
-     * @param array $fieldTypeMapper Field type mapper data parameter.
-     *
-     * @return void
-     */
-    public function setFieldTypeMapper(array $fieldTypeMapper = [])
-    {
-        $this->FieldTypeMapper = $fieldTypeMapper;
-    }
-
-    /**
      * Do field mapping based on the given field mapper data array property.
      *
      * @throws \Bridge\Components\Exporter\ExporterException If field mapping failed.
@@ -235,33 +206,6 @@ abstract class AbstractEntityBuilder
     }
 
     /**
-     * Get mapped field type.
-     *
-     * @param string $fieldType Field type parameter.
-     *
-     * @throws \Bridge\Components\Exporter\ExporterException Invalid field type given.
-     *
-     * @return mixed
-     */
-    protected function getFieldTypeMap($fieldType)
-    {
-        try {
-            if ($this->validateFieldTypeMapper() === true and
-                ($mappedType = array_search($fieldType, $this->getFieldTypeMapper(), true)) !== false
-            ) {
-                $fieldType = $mappedType;
-            }
-            $validType = \Bridge\Components\Exporter\FieldElement::getFieldTypeConstraints();
-            if (in_array($fieldType, $validType, true) === false) {
-                throw new \Bridge\Components\Exporter\ExporterException('Invalid field type given: ' . $fieldType);
-            }
-            return $fieldType;
-        } catch (\Exception $ex) {
-            throw new \Bridge\Components\Exporter\ExporterException($ex->getMessage());
-        }
-    }
-
-    /**
      * Set entities data property.
      *
      * @param array $entitiesData Entities data parameter.
@@ -289,24 +233,6 @@ abstract class AbstractEntityBuilder
             count(array_diff($this->getFieldMapper(), $dataSourceFields)) !== 0
         ) {
             throw new \Bridge\Components\Exporter\ExporterException('Invalid field mapper array data given');
-        }
-        return true;
-    }
-
-    /**
-     * Validate the field type mapper property.
-     *
-     * @throws \Bridge\Components\Exporter\ExporterException If invalid field type mapper array data given.
-     *
-     * @return boolean
-     */
-    protected function validateFieldTypeMapper()
-    {
-        $validType = \Bridge\Components\Exporter\FieldElement::getFieldTypeConstraints();
-        if (count($this->getFieldTypeMapper()) > 0 and
-            count(array_diff(array_keys($this->getFieldTypeMapper()), $validType)) !== 0
-        ) {
-            throw new \Bridge\Components\Exporter\ExporterException('Invalid field type mapper array data given');
         }
         return true;
     }

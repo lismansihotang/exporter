@@ -25,6 +25,13 @@ interface TableEntityInterface
 {
 
     /**
+     * Get table entity data property.
+     *
+     * @return array
+     */
+    public function getData();
+
+    /**
      * Get selected field property.
      *
      * @param string $fieldName Field name parameter.

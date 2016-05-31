@@ -13,7 +13,7 @@
 namespace Bridge\Components\Exporter\Contracts;
 
 /**
- * ConstraintInterface class description.
+ * MapperInterface class description.
  *
  * @package    Components
  * @subpackage Exporter\Contracts
@@ -21,15 +21,27 @@ namespace Bridge\Components\Exporter\Contracts;
  * @copyright  2016 -
  * @release    $Revision$
  */
-interface ConstraintInterface
+interface MapperInterface
 {
 
     /**
-     * Do validate the entity using the given constraint.
+     * Get the mapper data property.
      *
-     * @param mixed $value Value that will validate by the constraint data that has been provided.
+     * @return array
+     */
+    public function getDataMapper();
+
+    /**
+     * Get matcher result data.
+     *
+     * @return array
+     */
+    public function getResult();
+
+    /**
+     * Run mapper as matcher procedure result.
      *
      * @return boolean
      */
-    public function validateConstraint($value);
+    public function runMapper();
 }

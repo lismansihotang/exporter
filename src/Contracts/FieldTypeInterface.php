@@ -13,7 +13,7 @@
 namespace Bridge\Components\Exporter\Contracts;
 
 /**
- * ConstraintInterface class description.
+ * FieldTypeInterface class description.
  *
  * @package    Components
  * @subpackage Exporter\Contracts
@@ -21,15 +21,27 @@ namespace Bridge\Components\Exporter\Contracts;
  * @copyright  2016 -
  * @release    $Revision$
  */
-interface ConstraintInterface
+interface FieldTypeInterface extends \Bridge\Components\Exporter\Contracts\ConstraintInterface
 {
 
     /**
-     * Do validate the entity using the given constraint.
+     * Get default value.
      *
-     * @param mixed $value Value that will validate by the constraint data that has been provided.
-     *
-     * @return boolean
+     * @return mixed
      */
-    public function validateConstraint($value);
+    public function getDefaultValue();
+
+    /**
+     * Get the field type length.
+     *
+     * @return mixed
+     */
+    public function getFieldLength();
+
+    /**
+     * Get the type name property.
+     *
+     * @return string
+     */
+    public function getTypeName();
 }
