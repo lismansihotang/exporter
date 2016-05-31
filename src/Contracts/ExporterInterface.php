@@ -48,7 +48,7 @@ interface ExporterInterface
     /**
      * Do the data export.
      *
-     * @return boolean
+     * @return void
      */
     public function doExport();
 

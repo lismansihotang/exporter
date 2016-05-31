@@ -49,15 +49,25 @@ abstract class AbstractDataSourceDecorator implements \Bridge\Components\Exporte
     }
 
     /**
+     * Load the data source and run initial process.
+     *
+     * @return void
+     */
+    public function doLoad()
+    {
+        $this->DataSourceInstance->doLoad();
+    }
+
+    /**
      * Do mass import data set.
      *
      * @param array $data Data that will be updated into data source.
      *
-     * @return boolean
+     * @return void
      */
     public function doMassImport(array $data)
     {
-        return $this->DataSourceInstance->doMassImport($data);
+        $this->DataSourceInstance->doMassImport($data);
     }
 
     /**

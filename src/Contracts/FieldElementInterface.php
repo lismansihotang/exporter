@@ -25,6 +25,41 @@ interface FieldElementInterface
 {
 
     /**
+     * Enumeration field type.
+     *
+     * @constant integer FIELD_TYPE_ENUM
+     */
+    const FIELD_TYPE_ENUM = 0;
+
+    /**
+     * String field type.
+     *
+     * @constant integer FIELD_TYPE_STRING
+     */
+    const FIELD_TYPE_STRING = 1;
+
+    /**
+     * Number field type.
+     *
+     * @constant integer FIELD_TYPE_NUMBER
+     */
+    const FIELD_TYPE_NUMBER = 2;
+
+    /**
+     * Date field type.
+     *
+     * @constant integer FIELD_TYPE_DATE
+     */
+    const FIELD_TYPE_DATE = 3;
+
+    /**
+     * Character field type.
+     *
+     * @constant string FIELD_TYPE_CHAR
+     */
+    const FIELD_TYPE_CHAR = 4;
+
+    /**
      * Get data constraints array property.
      *
      * @return array
@@ -32,88 +67,30 @@ interface FieldElementInterface
     public function getConstraints();
 
     /**
-     * Get field name property.
+     * Get the field name property.
      *
      * @return string
      */
-    public function getName();
+    public function getFieldName();
 
     /**
-     * Set field as primary key.
+     * Get field type constraints data property.
      *
-     * @param boolean $isPrimaryKey Primary key option parameter.
-     *
-     * @return void
+     * @return array
      */
-    public function setAsPrimaryKey($isPrimaryKey = true);
+    public static function getFieldTypeConstraints();
 
     /**
-     * Set field default value.
+     * Get primary key state property.
      *
-     * @param string $defaultValue Default value parameter.
-     *
-     * @return void
+     * @return boolean
      */
-    public function setDefaultValue($defaultValue = '');
+    public function isPrimaryKey();
 
     /**
-     * Set field dependency.
+     * Get the field required constraint.
      *
-     * @param \Bridge\Components\Exporter\Contracts\TableEntityInterface $dependencyTable     Dependency table object
-     *                                                                                        parameter.
-     * @param string                                                     $dependencyFieldName Dependency field name
-     *                                                                                        parameter.
-     *
-     * @return void
+     * @return boolean
      */
-    public function setDependency(
-        \Bridge\Components\Exporter\Contracts\TableEntityInterface $dependencyTable,
-        $dependencyFieldName
-    );
-
-    /**
-     * Set field enum data property.
-     *
-     * @param array $enumData Enum data array parameter.
-     *
-     * @return void
-     */
-    public function setEnum(array $enumData);
-
-    /**
-     * Set field basic information property.
-     *
-     * @param integer $fieldType   Field type parameter.
-     * @param integer $fieldLength Field length parameter.
-     *
-     * @return void
-     */
-    public function setField($fieldType, $fieldLength);
-
-    /**
-     * Set field length property.
-     *
-     * @param integer $fieldLength Field length parameter.
-     *
-     * @return void
-     */
-    public function setFieldLength($fieldLength);
-
-    /**
-     * Set field type property.
-     *
-     * @param integer $fieldType Field type parameter.
-     *
-     * @return void
-     */
-    public function setFieldType($fieldType);
-
-    /**
-     * Set field is required (mandatory) or not.
-     *
-     * @param boolean $isRequired Required option parameter.
-     *
-     * @return void
-     */
-    public function setRequired($isRequired = true);
+    public function isRequired();
 }

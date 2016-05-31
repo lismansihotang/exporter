@@ -13,7 +13,7 @@
 namespace Bridge\Components\Exporter\Contracts;
 
 /**
- * TableEntityInterface class description.
+ * ConstraintInterface class description.
  *
  * @package    Components
  * @subpackage Exporter\Contracts
@@ -21,29 +21,20 @@ namespace Bridge\Components\Exporter\Contracts;
  * @copyright  2016 -
  * @release    $Revision$
  */
-interface TableEntityInterface
+interface ConstraintInterface
 {
 
     /**
-     * Get selected field property.
+     * Get the constraints data.
      *
-     * @param string $fieldName Field name parameter.
-     *
-     * @return \Bridge\Components\Exporter\Contracts\FieldElementInterface
+     * @return array
      */
-    public function getField($fieldName);
+    public function getConstraints();
 
     /**
-     * Get fields collection information.
+     * Do validate the entity using the given constraint.
      *
-     * @return array Field element object collection.
+     * @return boolean
      */
-    public function getFields();
-
-    /**
-     * Get table name property.
-     *
-     * @return string Get table entity name.
-     */
-    public function getName();
+    public function validateConstraint();
 }

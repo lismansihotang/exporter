@@ -89,6 +89,46 @@ class ExcelDataSource implements \Bridge\Components\Exporter\Contracts\DataSourc
     }
 
     /**
+     * Load the excel file and run initial process.
+     *
+     * @return void
+     */
+    public function doLoad()
+    {
+        # Set the default field read filter if no given.
+        if ($this->getFieldReadFilter() === null) {
+            $this->setFieldReadFilter(1);
+        }
+        $this->getExcelFileObject()->doRead();
+        $excelFileDataArr = $this->getExcelFileObject()->getData();
+        if (array_key_exists('worksheets', $excelFileDataArr) === true) {
+            $worksheetData = $excelFileDataArr['worksheets'];
+            if (count($worksheetData) > 1) {
+                $this->setMultipleSource(true);
+            }
+        }
+        # Get the fields data.
+        # Build the recordSet data by grouping the fields column as the index key.
+        $fields = [];
+        $data = [];
+        foreach ($excelFileDataArr as $worksheets) {
+            foreach ((array)$worksheets as $sheetName => $sheet) {
+                foreach ($sheet['contents'] as $rowNumber => $rowGroup) {
+                    foreach ($rowGroup['data'] as $columnNumber => $cell) {
+                        if ($rowNumber === $this->FieldReadFilter->getStartRow()) {
+                            $fields[$sheetName][$columnNumber] = $cell;
+                        } else {
+                            $data[$sheetName][$rowNumber][$fields[$sheetName][$columnNumber]] = $cell;
+                        }
+                    }
+                }
+            }
+        }
+        $this->setFields($fields);
+        $this->setData($data);
+    }
+
+    /**
      * Update data set.
      *
      * @param array $data Data that will be updated into data source.
@@ -140,46 +180,6 @@ class ExcelDataSource implements \Bridge\Components\Exporter\Contracts\DataSourc
     public function isMultipleSource()
     {
         return $this->MultipleSource;
-    }
-
-    /**
-     * Load the excel file and run initial process.
-     *
-     * @return void
-     */
-    public function doLoad()
-    {
-        # Set the default field read filter if no given.
-        if ($this->getFieldReadFilter() === null) {
-            $this->setFieldReadFilter(1);
-        }
-        $this->getExcelFileObject()->doRead();
-        $excelFileDataArr = $this->getExcelFileObject()->getData();
-        if (array_key_exists('worksheets', $excelFileDataArr) === true) {
-            $worksheetData = $excelFileDataArr['worksheets'];
-            if (count($worksheetData) > 1) {
-                $this->setMultipleSource(true);
-            }
-        }
-        # Get the fields data.
-        # Build the recordSet data by grouping the fields column as the index key.
-        $fields = [];
-        $data = [];
-        foreach ($excelFileDataArr as $worksheets) {
-            foreach ((array)$worksheets as $sheetName => $sheet) {
-                foreach ($sheet['contents'] as $rowNumber => $rowGroup) {
-                    foreach ($rowGroup['data'] as $columnNumber => $cell) {
-                        if ($rowNumber === $this->FieldReadFilter->getStartRow()) {
-                            $fields[$sheetName][$columnNumber] = $cell;
-                        } else {
-                            $data[$sheetName][$fields[$sheetName][$columnNumber]] = $cell;
-                        }
-                    }
-                }
-            }
-        }
-        $this->setFields($fields);
-        $this->setData($data);
     }
 
     /**

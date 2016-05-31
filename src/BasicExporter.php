@@ -74,14 +74,14 @@ class BasicExporter implements \Bridge\Components\Exporter\Contracts\ExporterInt
     /**
      * Do export the source data to target.
      *
-     * @return boolean
+     * @return void
      */
     public function doExport()
     {
         if ($this->getTargetObject() === null) {
             die('Please assign the target object to the exporter');
         }
-        return $this->getTargetObject()->doMassImport($this->getExportedData());
+        $this->getTargetObject()->doMassImport($this->getExportedData());
     }
 
     /**

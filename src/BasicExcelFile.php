@@ -54,6 +54,7 @@ class BasicExcelFile extends \Bridge\Components\Exporter\AbstractExcelFile
      */
     public function doPrinting(array $options = [])
     {
+        # TODO: Implement the doPrinting method.
         # Applied the options to the excel object.
     }
 

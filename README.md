@@ -1,5 +1,11 @@
 # Introduction
 
+## Applied Patterns
+- Template Method Pattern
+- Strategy Pattern
+- Builder Pattern
+- Decorator Pattern
+
 # Requirements
 
 # Components

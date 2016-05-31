@@ -25,6 +25,13 @@ interface DataSourceInterface
 {
 
     /**
+     * Load the data source and run initial process.
+     *
+     * @return void
+     */
+    public function doLoad();
+
+    /**
      * Do mass import data set.
      *
      * @param array $data Data that will be updated into data source.
@@ -34,11 +41,13 @@ interface DataSourceInterface
     public function doMassImport(array $data);
 
     /**
-     * Get resource data.
+     * Get the resource data.
+     *
+     * @param array $tableName Table name filter parameter.
      *
      * @return array
      */
-    public function getData();
+    public function getData(array $tableName = []);
 
     /**
      * Get field lists from data source.

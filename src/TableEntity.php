@@ -58,7 +58,7 @@ class TableEntity implements \Bridge\Components\Exporter\Contracts\TableEntityIn
      */
     public function addField(\Bridge\Components\Exporter\Contracts\FieldElementInterface $fieldElementObject)
     {
-        $this->Fields[$fieldElementObject->getName()] = $fieldElementObject;
+        $this->Fields[$fieldElementObject->getFieldName()] = $fieldElementObject;
     }
 
     /**
@@ -66,14 +66,14 @@ class TableEntity implements \Bridge\Components\Exporter\Contracts\TableEntityIn
      *
      * @param string $fieldName Field name parameter.
      *
-     * @return array
+     * @return \Bridge\Components\Exporter\Contracts\FieldElementInterface
      */
     public function getField($fieldName)
     {
         if (array_key_exists($fieldName, $this->Fields) === true) {
-            return (array)$this->Fields[$fieldName];
+            return $this->Fields[$fieldName];
         }
-        return [];
+        return null;
     }
 
     /**
