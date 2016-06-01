@@ -485,10 +485,10 @@ class StringUtility
     {
         # Sample: Bambang Adrian Sitompul : bambangAdrianSitompul
         # TODO: Implement the toCamelCase method.
-        $arrString = explode(' ', $str);
-        $resString[] = strtolower($arrString[0]);
+        $arrString = explode(' ', strtolower($str));
+        $resString[] = $arrString[0];
         for ($i = 1; $i < count($arrString); $i++) {
-            $resString[] = ucfirst(strtolower($arrString[$i]));
+            $resString[] = ucfirst($arrString[$i]);
         }
         return implode('', $resString);
     }
