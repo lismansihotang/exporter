@@ -484,10 +484,10 @@ class StringUtility
     public static function toCamelCase($str)
     {
         # Sample: Bambang Adrian Sitompul : bambangAdrianSitompul
-        # TODO: Implement the toCamelCase method.
         $arrString = explode(' ', strtolower($str));
         $resString[] = $arrString[0];
-        for ($i = 1; $i < count($arrString); $i++) {
+        $count = count($arrString);
+        for ($i = 1; $i < $count; $i++) {
             $resString[] = ucfirst($arrString[$i]);
         }
         return implode('', $resString);
@@ -503,8 +503,7 @@ class StringUtility
     public static function toPascalCase($str)
     {
         # Sample: Bambang Adrian Sitompul : BambangAdrianSitompul
-        # TODO: Implement the toPascalCase method.
-        return trim(ucwords(strtolower($str)));
+        return str_replace(' ', '', ucwords(strtolower($str)));
     }
 
     /**
@@ -517,8 +516,7 @@ class StringUtility
     public static function toUnderScoreCase($str)
     {
         # Sample: Bambang Adrian Sitompul : bambang_adrian_sitompul
-        # TODO: Implement the toUnderScoreCase method.
-        return str_replace(" ", "_", strtolower($str));
+        return str_replace(" ", "_", ltrim(rtrim(strtolower($str))));
     }
 
     /**
