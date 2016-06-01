@@ -485,6 +485,12 @@ class StringUtility
     {
         # Sample: Bambang Adrian Sitompul : bambangAdrianSitompul
         # TODO: Implement the toCamelCase method.
+        $arrString = explode(' ', $str);
+        $resString[] = strtolower($arrString[0]);
+        for ($i = 1; $i < count($arrString); $i++) {
+            $resString[] = ucfirst(strtolower($arrString[$i]));
+        }
+        return implode('', $resString);
     }
 
     /**
@@ -498,6 +504,7 @@ class StringUtility
     {
         # Sample: Bambang Adrian Sitompul : BambangAdrianSitompul
         # TODO: Implement the toPascalCase method.
+        return trim(ucwords(strtolower($str)));
     }
 
     /**
@@ -511,6 +518,7 @@ class StringUtility
     {
         # Sample: Bambang Adrian Sitompul : bambang_adrian_sitompul
         # TODO: Implement the toUnderScoreCase method.
+        return str_replace(" ", "_", strtolower($str));
     }
 
     /**
@@ -522,13 +530,13 @@ class StringUtility
      *
      * @return string
      */
-    public static function toUriFriendly($str, array $replace = [], $delimiter = '-')
+    public static function toUriFriendly($str, array $replace = [], $delimiter = ' - ')
     {
         if (!empty($replace)) {
             $str = str_replace((array)$replace, ' ', $str);
         }
         $clean = static::replaceAccent($str);
-        $clean = iconv('UTF-8', 'ASCII//TRANSLIT', $clean);
+        $clean = iconv('UTF - 8', 'ASCII//TRANSLIT', $clean);
         $clean = preg_replace("/[^a-zA-Z0-9\/_|+ -]/", '', $clean);
         $clean = strtolower(trim($clean, '-'));
         $clean = preg_replace("/[\/_|+ -]+/", $delimiter, $clean);
