@@ -483,6 +483,7 @@ class StringUtility
      */
     public static function toCamelCase($str)
     {
+        # Sample: Bambang Adrian Sitompul : bambangAdrianSitompul
         # TODO: Implement the toCamelCase method.
     }
 
@@ -495,6 +496,7 @@ class StringUtility
      */
     public static function toPascalCase($str)
     {
+        # Sample: Bambang Adrian Sitompul : BambangAdrianSitompul
         # TODO: Implement the toPascalCase method.
     }
 
@@ -507,6 +509,7 @@ class StringUtility
      */
     public static function toUnderScoreCase($str)
     {
+        # Sample: Bambang Adrian Sitompul : bambang_adrian_sitompul
         # TODO: Implement the toUnderScoreCase method.
     }
 

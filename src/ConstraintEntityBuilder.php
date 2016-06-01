@@ -74,7 +74,7 @@ class ConstraintEntityBuilder extends \Bridge\Components\Exporter\AbstractEntity
             $entityCollection = [];
             foreach ($entitiesData as $entityName => $entityData) {
                 # Create a table source as the data source for entity.
-                $entityObj = new \Bridge\Components\Exporter\TableEntity($entityName);
+                $entityObj = new \Bridge\Components\Exporter\ConstraintEntity($entityName);
                 $entityObj->setData($entityData);
                 foreach ((array)$entityData as $fieldData) {
                     # Parse the field constraint from entity array.

@@ -21,135 +21,68 @@ namespace Bridge\Components\Exporter;
  * @copyright  2016 -
  * @release    $Revision$
  */
-class TableEntity implements \Bridge\Components\Exporter\Contracts\TableEntityInterface
+class TableEntity extends \Bridge\Components\Exporter\AbstractEntity implements
+    \Bridge\Components\Exporter\Contracts\TableEntityInterface
 {
 
     /**
-     * Table entity data array property.
+     * Constraint entity instance property.
      *
-     * @var array $Data
+     * @var \Bridge\Components\Exporter\Contracts\ConstraintEntityInterface
      */
-    private $Data;
-
-    /**
-     * Fields data property.
-     *
-     * @var array $Fields
-     */
-    private $Fields;
-
-    /**
-     * Table name property.
-     *
-     * @var string $Name
-     */
-    private $Name;
+    private $ConstraintEntity;
 
     /**
      * TableEntity constructor.
      *
-     * @param string $tableName Table name parameter.
+     * @param string                                                          $entityName          Entity name
+     *                                                                                             parameter.
+     * @param \Bridge\Components\Exporter\Contracts\ConstraintEntityInterface $constraintEntityObj Constraint entity
+     *                                                                                             object parameter.
      */
-    public function __construct($tableName)
-    {
-        $this->setName($tableName);
-    }
-
-    /**
-     * Add field element object into fields collection property
-     *
-     * @param \Bridge\Components\Exporter\Contracts\FieldElementInterface $fieldElementObject Field element object
-     *                                                                                        parameter.
-     *
-     * @return void
-     */
-    public function addField(\Bridge\Components\Exporter\Contracts\FieldElementInterface $fieldElementObject)
-    {
-        $this->Fields[$fieldElementObject->getFieldName()] = $fieldElementObject;
-    }
-
-    /**
-     * Get table entity data property.
-     *
-     * @return array
-     */
-    public function getData()
-    {
-        return $this->Data;
-    }
-
-    /**
-     * Get selected field property.
-     *
-     * @param string $fieldName Field name parameter.
-     *
-     * @return \Bridge\Components\Exporter\Contracts\FieldElementInterface
-     */
-    public function getField($fieldName)
-    {
-        if (array_key_exists($fieldName, $this->Fields) === true) {
-            return $this->Fields[$fieldName];
+    public function __construct(
+        $entityName,
+        \Bridge\Components\Exporter\Contracts\ConstraintEntityInterface $constraintEntityObj = null
+    ) {
+        if ($constraintEntityObj !== null) {
+            $this->setConstraintEntityObject($constraintEntityObj);
+            $constraintEntityObj->validateTableEntityData($this);
         }
-        return null;
+        parent::__construct($entityName);
     }
 
     /**
-     * Get fields collection information.
+     * Get the constraint entity object as the table entity constraint data property.
      *
-     * @return array
+     * @return \Bridge\Components\Exporter\Contracts\ConstraintEntityInterface
      */
-    public function getFields()
+    public function getConstraintEntityObject()
     {
-        return $this->Fields;
+        return $this->ConstraintEntity;
     }
 
     /**
-     * Get table name property.
+     * Check if the table entity has a constraint.
      *
-     * @return string
+     * @return boolean
      */
-    public function getName()
+    public function hasConstraint()
     {
-        return $this->Name;
+        return ($this->getConstraintEntityObject() !== null);
     }
 
     /**
-     * Set the table entity data array property.
+     * Set the constraint entity object property.
      *
-     * @param array $data Array data of entity parameter.
+     * @param \Bridge\Components\Exporter\Contracts\ConstraintEntityInterface|null $constraintEntityObj Constraint
+     *                                                                                                  entity object
+     *                                                                                                  parameter.
      *
      * @return void
      */
-    public function setData(array $data = [])
-    {
-        $this->Data = $data;
-    }
-
-    /**
-     * Set fields collection property.
-     *
-     * @param array $fields Field elements data array collection parameter.
-     *
-     * @return void
-     */
-    public function setFields(array $fields)
-    {
-        foreach ($fields as $field) {
-            if ($fields instanceof \Bridge\Components\Exporter\Contracts\FieldElementInterface) {
-                $this->addField($field);
-            }
-        }
-    }
-
-    /**
-     * Set table name property.
-     *
-     * @param string $tableName Table name parameter.
-     *
-     * @return void
-     */
-    public function setName($tableName)
-    {
-        $this->Name = $tableName;
+    protected function setConstraintEntityObject(
+        \Bridge\Components\Exporter\Contracts\ConstraintEntityInterface $constraintEntityObj = null
+    ) {
+        $this->ConstraintEntity = $constraintEntityObj;
     }
 }

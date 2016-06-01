@@ -24,14 +24,12 @@ namespace Bridge\Components\Exporter;
 class DataMapper implements \Bridge\Components\Exporter\Contracts\MapperInterface
 {
 
-
-
     /**
-     * Data mapper property.
+     * Field mapper data property.
      *
-     * @var array $DataMapper
+     * @var array $FieldMapperData
      */
-    private $DataMapper;
+    private $FieldMapperData;
 
     /**
      * Result of data mapper and matcher processing.
@@ -76,9 +74,9 @@ class DataMapper implements \Bridge\Components\Exporter\Contracts\MapperInterfac
      *
      * @return array
      */
-    public function getDataMapper()
+    public function getFieldMapperData()
     {
-        return $this->DataMapper;
+        return $this->FieldMapperData;
     }
 
     /**
@@ -129,10 +127,8 @@ class DataMapper implements \Bridge\Components\Exporter\Contracts\MapperInterfac
     public function runMapper()
     {
         # Get the table entity data.
-
         # Get the record source data.
         # Get the record target data.
-
     }
 
     /**
@@ -142,9 +138,9 @@ class DataMapper implements \Bridge\Components\Exporter\Contracts\MapperInterfac
      *
      * @return void
      */
-    public function setDataMapper(array $dataMapper = [])
+    public function setFieldMapperData(array $dataMapper = [])
     {
-        $this->DataMapper = $dataMapper;
+        $this->FieldMapperData = $dataMapper;
     }
 
     /**

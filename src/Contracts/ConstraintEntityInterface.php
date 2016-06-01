@@ -13,7 +13,7 @@
 namespace Bridge\Components\Exporter\Contracts;
 
 /**
- * TableEntityInterface class description.
+ * ConstraintEntityInterface class description.
  *
  * @package    Components
  * @subpackage Exporter\Contracts
@@ -21,20 +21,22 @@ namespace Bridge\Components\Exporter\Contracts;
  * @copyright  2016 -
  * @release    $Revision$
  */
-interface TableEntityInterface extends \Bridge\Components\Exporter\Contracts\EntityInterface
+interface ConstraintEntityInterface extends \Bridge\Components\Exporter\Contracts\EntityInterface
 {
 
     /**
-     * Get the constraint entity object as the table entity constraint data property.
+     * Get the table entity object that owned the constraint instance.
      *
-     * @return \Bridge\Components\Exporter\Contracts\ConstraintEntityInterface
+     * @return \Bridge\Components\Exporter\Contracts\TableEntityInterface
      */
-    public function getConstraintEntityObject();
+    public function getTableEntityObject();
 
     /**
-     * Check if the table entity has a constraint.
+     * Validate the table entity data.
+     *
+     * @param \Bridge\Components\Exporter\Contracts\TableEntityInterface $tableEntityObj Table entity object parameter.
      *
      * @return boolean
      */
-    public function hasConstraint();
+    public function validateTableEntityData(\Bridge\Components\Exporter\Contracts\TableEntityInterface $tableEntityObj);
 }

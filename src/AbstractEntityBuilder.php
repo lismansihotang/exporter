@@ -21,7 +21,7 @@ namespace Bridge\Components\Exporter;
  * @copyright  2016 -
  * @release    $Revision$
  */
-abstract class AbstractEntityBuilder
+abstract class AbstractEntityBuilder implements \Bridge\Components\Exporter\Contracts\EntityBuilderInterface
 {
 
     /**
@@ -72,7 +72,7 @@ abstract class AbstractEntityBuilder
     }
 
     /**
-     * Load initialization of data source entities builder.
+     * Build the entities data.
      *
      * @throws \Bridge\Components\Exporter\ExporterException If Invalid field mapper array data given.
      *
@@ -122,18 +122,18 @@ abstract class AbstractEntityBuilder
     /**
      * Get entity object.
      *
-     * @param string $tableName Table entity name parameter.
+     * @param string $entityName Entity name parameter.
      *
-     * @throws \Bridge\Components\Exporter\ExporterException If table entity name not found on collections.
+     * @throws \Bridge\Components\Exporter\ExporterException If Entity name not found on collections.
      *
-     * @return \Bridge\Components\Exporter\Contracts\TableEntityInterface
+     * @return \Bridge\Components\Exporter\Contracts\EntityInterface
      */
-    public function getEntity($tableName)
+    public function getEntity($entityName)
     {
-        if (array_key_exists($tableName, $this->getEntities()) === false) {
-            throw new \Bridge\Components\Exporter\ExporterException('Table entity not found on collections');
+        if (array_key_exists($entityName, $this->getEntities()) === false) {
+            throw new \Bridge\Components\Exporter\ExporterException('Entity not found on collections');
         }
-        return $this->getEntities()[$tableName];
+        return $this->getEntities()[$entityName];
     }
 
     /**

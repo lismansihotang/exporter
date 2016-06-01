@@ -13,7 +13,7 @@
 namespace Bridge\Components\Exporter\Contracts;
 
 /**
- * MapperInterface class description.
+ * EntityInterface class description.
  *
  * @package    Components
  * @subpackage Exporter\Contracts
@@ -21,27 +21,36 @@ namespace Bridge\Components\Exporter\Contracts;
  * @copyright  2016 -
  * @release    $Revision$
  */
-interface MapperInterface
+interface EntityInterface
 {
 
     /**
-     * Get the mapper data property.
+     * Get table entity data property.
      *
      * @return array
      */
-    public function getFieldMapperData();
+    public function getData();
 
     /**
-     * Get matcher result data.
+     * Get selected field property.
      *
-     * @return array
+     * @param string $fieldName Field name parameter.
+     *
+     * @return \Bridge\Components\Exporter\Contracts\FieldElementInterface
      */
-    public function getResult();
+    public function getField($fieldName);
 
     /**
-     * Run mapper as matcher procedure result.
+     * Get fields collection information.
      *
-     * @return boolean
+     * @return array Field element object collection.
      */
-    public function runMapper();
+    public function getFields();
+
+    /**
+     * Get table name property.
+     *
+     * @return string Get table entity name.
+     */
+    public function getName();
 }

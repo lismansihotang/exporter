@@ -13,7 +13,7 @@
 namespace Bridge\Components\Exporter\Contracts;
 
 /**
- * TableEntityInterface class description.
+ * EntityBuilderInterface class description.
  *
  * @package    Components
  * @subpackage Exporter\Contracts
@@ -21,20 +21,26 @@ namespace Bridge\Components\Exporter\Contracts;
  * @copyright  2016 -
  * @release    $Revision$
  */
-interface TableEntityInterface extends \Bridge\Components\Exporter\Contracts\EntityInterface
+interface EntityBuilderInterface
 {
 
     /**
-     * Get the constraint entity object as the table entity constraint data property.
+     * Build the entities data.
      *
-     * @return \Bridge\Components\Exporter\Contracts\ConstraintEntityInterface
+     * @throws \Bridge\Components\Exporter\ExporterException If Invalid field mapper array data given.
+     *
+     * @return void
      */
-    public function getConstraintEntityObject();
+    public function doBuild();
 
     /**
-     * Check if the table entity has a constraint.
+     * Get entity object.
      *
-     * @return boolean
+     * @param string $entityName Entity name parameter.
+     *
+     * @throws \Bridge\Components\Exporter\ExporterException If Entity name not found on collections.
+     *
+     * @return \Bridge\Components\Exporter\Contracts\EntityInterface
      */
-    public function hasConstraint();
+    public function getEntity($entityName);
 }
