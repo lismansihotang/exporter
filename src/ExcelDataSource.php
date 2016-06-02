@@ -115,10 +115,14 @@ class ExcelDataSource implements \Bridge\Components\Exporter\Contracts\DataSourc
             foreach ((array)$worksheets as $sheetName => $sheet) {
                 foreach ($sheet['contents'] as $rowNumber => $rowGroup) {
                     foreach ($rowGroup['data'] as $columnNumber => $cell) {
-                        if ($rowNumber === $this->FieldReadFilter->getStartRow()) {
+                        if (array_key_exists($sheetName, $fields) === true and
+                            array_key_exists($columnNumber, $fields[$sheetName]) === true
+                        ) {
+                            $columnName = $fields[$sheetName][$columnNumber];
+                            $data[$sheetName][$rowNumber][$columnName] = $cell;
+                        }
+                        if ($rowNumber === $this->FieldReadFilter->getStartRow() and $cell !== null) {
                             $fields[$sheetName][$columnNumber] = $cell;
-                        } else {
-                            $data[$sheetName][$rowNumber][$fields[$sheetName][$columnNumber]] = $cell;
                         }
                     }
                 }
@@ -185,18 +189,18 @@ class ExcelDataSource implements \Bridge\Components\Exporter\Contracts\DataSourc
     /**
      * Set field read filter object property.
      *
-     * @param integer $startRow      Field row number parameter.
-     * @param array   $columns       Column range data parameter.
-     * @param string  $workSheetName Work sheet name parameter.
+     * @param integer $startRow  Field row number parameter.
+     * @param array   $columns   Column range data parameter.
+     * @param string  $sheetName Sheet name parameter.
      *
      * @return void
      */
-    public function setFieldReadFilter($startRow, array $columns = [], $workSheetName = '')
+    public function setFieldReadFilter($startRow, array $columns = [], $sheetName = '')
     {
         $this->FieldReadFilter = new \Bridge\Components\Exporter\ExcelEntityFieldsReadFilter(
             $startRow,
             $columns,
-            $workSheetName
+            $sheetName
         );
         $this->RecordReadFilter = new \Bridge\Components\Exporter\ExcelEntityRecordReadFilter($this->FieldReadFilter);
     }

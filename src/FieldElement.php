@@ -79,10 +79,10 @@ class FieldElement implements \Bridge\Components\Exporter\Contracts\FieldElement
      * @var array $ValidFieldConstraints
      */
     protected static $ValidFieldConstraints = [
-        'primaryKey' => 'setAsPrimary',
-        'fieldType'  => 'setFieldType',
-        'required'   => 'setRequired',
-        'foreignKey' => 'setDependency'
+        'primaryKey'    => 'setAsPrimary',
+        'fieldTypeData' => 'setFieldTypeData',
+        'required'      => 'setRequired',
+        'foreignKey'    => 'setDependency'
     ];
 
     /**
@@ -268,7 +268,7 @@ class FieldElement implements \Bridge\Components\Exporter\Contracts\FieldElement
     }
 
     /**
-     * Set field type property.
+     * Process and setting all the field type data.
      *
      * @param array $fieldTypeData Field type data parameter.
      *
@@ -276,7 +276,7 @@ class FieldElement implements \Bridge\Components\Exporter\Contracts\FieldElement
      *
      * @return void
      */
-    public function setFieldType(array $fieldTypeData)
+    public function setFieldTypeData(array $fieldTypeData)
     {
         try {
             $fieldTypeDataTemplate = ['type' => null, 'length' => null, 'default' => null];
@@ -287,7 +287,7 @@ class FieldElement implements \Bridge\Components\Exporter\Contracts\FieldElement
                 $fieldTypeData['length'],
                 $fieldTypeData['default']
             );
-            $this->Constraints['fieldType'] = $fieldTypeObject;
+            $this->Constraints['fieldTypeData'] = $fieldTypeData;
             $this->FieldType = $fieldTypeObject;
             $this->FieldLength = $fieldTypeData['length'];
             $this->DefaultValue = $fieldTypeData['default'];

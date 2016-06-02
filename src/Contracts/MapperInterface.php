@@ -32,16 +32,35 @@ interface MapperInterface
     public function getFieldMapperData();
 
     /**
-     * Get matcher result data.
+     * Get mapped data result.
+     *
+     * @param array $fieldFilters Field filters data array parameter.
      *
      * @return array
      */
-    public function getResult();
+    public function getMappedData(array $fieldFilters = []);
 
     /**
-     * Run mapper as matcher procedure result.
+     * Get the entity source object instance property.
+     *
+     * @return \Bridge\Components\Exporter\Contracts\EntityInterface
+     */
+    public function getSourceEntityObject();
+
+    /**
+     * Get the entity target object instance property.
+     *
+     * @return \Bridge\Components\Exporter\Contracts\EntityInterface
+     */
+    public function getTargetEntityObject();
+
+    /**
+     * Run mapper procedure.
+     *
+     * @param boolean $replaceSourceData Replace all source data flag option parameter.
+     * @param boolean $reIndex           Re-index all the mapper data result keys flag option parameter.
      *
      * @return boolean
      */
-    public function runMapper();
+    public function runMapper($replaceSourceData = true, $reIndex = true);
 }

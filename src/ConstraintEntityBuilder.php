@@ -79,15 +79,15 @@ class ConstraintEntityBuilder extends \Bridge\Components\Exporter\AbstractEntity
                 foreach ((array)$entityData as $fieldData) {
                     # Parse the field constraint from entity array.
                     $constraints = [
-                        'required'  => $fieldData['required'],
-                        'fieldType' => [
+                        'required'      => $fieldData['required'],
+                        'fieldTypeData' => [
                             'type'   => $this->getFieldTypeMap($fieldData['fieldType']),
                             'length' => $fieldData['fieldLength']
                         ]
                     ];
-                    # Create the field element and assign the field element into the table entity.
-                    $fieldElement = new \Bridge\Components\Exporter\FieldElement($fieldData['fieldName'], $constraints);
-                    $entityObj->addField($fieldElement);
+                    # Create the field element object and assign the field element into the table entity.
+                    $fieldObj = new \Bridge\Components\Exporter\FieldElement($fieldData['fieldName'], $constraints);
+                    $entityObj->addField($fieldObj);
                 }
                 # Add the entity object to the collection.
                 $entityCollection[$entityName] = $entityObj;
@@ -96,6 +96,26 @@ class ConstraintEntityBuilder extends \Bridge\Components\Exporter\AbstractEntity
         } catch (\Exception $ex) {
             throw new \Bridge\Components\Exporter\ExporterException($ex->getMessage());
         }
+    }
+
+    /**
+     * Get entity object.
+     *
+     * @param string $entityName Entity name parameter.
+     *
+     * @throws \Bridge\Components\Exporter\ExporterException If entity name not found on collections.
+     * @throws \Bridge\Components\Exporter\ExporterException If invalid entity name given.
+     * @throws \Bridge\Components\Exporter\ExporterException If invalid table entity object format found.
+     *
+     * @return \Bridge\Components\Exporter\Contracts\ConstraintEntityInterface
+     */
+    public function getEntity($entityName)
+    {
+        $entity = parent::getEntity($entityName);
+        if ($entity instanceof \Bridge\Components\Exporter\Contracts\ConstraintEntityInterface === false) {
+            throw new \Bridge\Components\Exporter\ExporterException('Invalid table entity object format');
+        }
+        return $entity;
     }
 
     /**

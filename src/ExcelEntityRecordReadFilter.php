@@ -44,7 +44,7 @@ class ExcelEntityRecordReadFilter extends \Bridge\Components\Exporter\AbstractEx
         if ($startRow <= $readFilter->getStartRow()) {
             throw new \Bridge\Components\Exporter\ExporterException('Invalid start cell row number given');
         }
-        $this->setWorkSheetName($readFilter->getWorkSheetName());
+        $this->setSheetName($readFilter->getSheetName());
         parent::__construct($startRow, $endRow, $readFilter->getColumns());
     }
 }

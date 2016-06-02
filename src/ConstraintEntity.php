@@ -52,6 +52,7 @@ class ConstraintEntity extends \Bridge\Components\Exporter\AbstractEntity implem
     public function validateTableEntityData(\Bridge\Components\Exporter\Contracts\TableEntityInterface $tableEntityObj)
     {
         $this->setTableEntityObject($tableEntityObj);
+        return true;
     }
 
     /**

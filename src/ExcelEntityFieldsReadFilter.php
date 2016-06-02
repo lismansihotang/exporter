@@ -27,16 +27,16 @@ class ExcelEntityFieldsReadFilter extends \Bridge\Components\Exporter\AbstractEx
     /**
      * ExcelEntityFieldsReadFilter constructor.
      *
-     * @param integer $rowNumber     Field row number parameter.
-     * @param array   $columns       Column range data parameter.
-     * @param string  $workSheetName Work sheet name parameter.
+     * @param integer $rowNumber Field row number parameter.
+     * @param array   $columns   Column range data parameter.
+     * @param string  $sheetName Sheet name parameter.
      *
      * @throws \Bridge\Components\Exporter\ExporterException If multiple number of row that given.
      */
-    public function __construct($rowNumber = 1, array $columns = [], $workSheetName = '')
+    public function __construct($rowNumber = 1, array $columns = [], $sheetName = '')
     {
-        if ($workSheetName !== null and trim($workSheetName) !== '') {
-            $this->setWorkSheetName($workSheetName);
+        if ($sheetName !== null and trim($sheetName) !== '') {
+            $this->setSheetName($sheetName);
         }
         parent::__construct($rowNumber, $rowNumber, $columns);
     }

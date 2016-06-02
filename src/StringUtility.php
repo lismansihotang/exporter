@@ -497,6 +497,7 @@ class StringUtility
     public static function toPascalCase($str)
     {
         # Sample: Bambang Adrian Sitompul : BambangAdrianSitompul
+        # Sample: bambang adrian sitompul : BambangAdrianSitompul
         # TODO: Implement the toPascalCase method.
     }
 
