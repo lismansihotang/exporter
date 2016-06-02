@@ -43,7 +43,6 @@ Thumbs.db
 /node_modules
 /bin
 /tmp
-/tests
 Development/**/*.yml
 Production/**/*.yml
 composer.lock

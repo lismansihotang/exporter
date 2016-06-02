@@ -39,18 +39,18 @@ abstract class AbstractExcelReadFilter implements \Bridge\Components\Exporter\Co
     protected $EndRow = 0;
 
     /**
+     * Work sheet name property.
+     *
+     * @var string $SheetName
+     */
+    protected $SheetName;
+
+    /**
      * Start cell row number property.
      *
      * @var integer $StartRow
      */
     protected $StartRow = 0;
-
-    /**
-     * Work sheet name property.
-     *
-     * @var string $WorkSheetName
-     */
-    protected $WorkSheetName;
 
     /**
      * ExcelEntityFieldsReadFilter constructor.
@@ -93,6 +93,16 @@ abstract class AbstractExcelReadFilter implements \Bridge\Components\Exporter\Co
     }
 
     /**
+     * Get work sheet name property.
+     *
+     * @return string
+     */
+    public function getSheetName()
+    {
+        return $this->SheetName;
+    }
+
+    /**
      * Get start cell row number property.
      *
      * @return integer
@@ -100,16 +110,6 @@ abstract class AbstractExcelReadFilter implements \Bridge\Components\Exporter\Co
     public function getStartRow()
     {
         return $this->StartRow;
-    }
-
-    /**
-     * Get work sheet name property.
-     *
-     * @return string
-     */
-    public function getWorkSheetName()
-    {
-        return $this->WorkSheetName;
     }
 
     /**
@@ -124,9 +124,9 @@ abstract class AbstractExcelReadFilter implements \Bridge\Components\Exporter\Co
     public function readCell($column, $row, $workSheetName = '')
     {
         # Only read the rows, columns, and worksheet name that were configured
-        if ($this->getWorkSheetName() !== '' and
-            $this->getWorkSheetName() !== null and
-            $workSheetName !== $this->getWorkSheetName()
+        if ($this->getSheetName() !== '' and
+            $this->getSheetName() !== null and
+            $workSheetName !== $this->getSheetName()
         ) {
             return false;
         }
@@ -165,6 +165,18 @@ abstract class AbstractExcelReadFilter implements \Bridge\Components\Exporter\Co
     }
 
     /**
+     * Set work sheet name property.
+     *
+     * @param string $workSheetName Work sheet name parameter.
+     *
+     * @return void
+     */
+    public function setSheetName($workSheetName)
+    {
+        $this->SheetName = $workSheetName;
+    }
+
+    /**
      * Set start cell row number property.
      *
      * @param integer $startRow Start cell row number parameter.
@@ -174,18 +186,6 @@ abstract class AbstractExcelReadFilter implements \Bridge\Components\Exporter\Co
     public function setStartRow($startRow)
     {
         $this->StartRow = $startRow;
-    }
-
-    /**
-     * Set work sheet name property.
-     *
-     * @param string $workSheetName Work sheet name parameter.
-     *
-     * @return void
-     */
-    public function setWorkSheetName($workSheetName)
-    {
-        $this->WorkSheetName = $workSheetName;
     }
 
     /**

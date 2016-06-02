@@ -64,26 +64,8 @@ abstract class AbstractEntityBuilder implements \Bridge\Components\Exporter\Cont
         try {
             # Set the data source property.
             $this->DataSource = $dataSource;
-            $dataSource->doLoad();
-            $this->EntitiesData = $dataSource->getData();
-        } catch (\Exception $ex) {
-            throw new \Bridge\Components\Exporter\ExporterException($ex->getMessage());
-        }
-    }
-
-    /**
-     * Build the entities data.
-     *
-     * @throws \Bridge\Components\Exporter\ExporterException If Invalid field mapper array data given.
-     *
-     * @return void
-     */
-    public function doBuild()
-    {
-        # Run the build entities procedure.
-        try {
-            # Load and validate the data source and
-            $this->doLoad();
+            $this->getDataSourceObject()->doLoad();
+            $this->EntitiesData = $this->getDataSourceObject()->getData();
         } catch (\Exception $ex) {
             throw new \Bridge\Components\Exporter\ExporterException($ex->getMessage());
         }
@@ -124,7 +106,8 @@ abstract class AbstractEntityBuilder implements \Bridge\Components\Exporter\Cont
      *
      * @param string $entityName Entity name parameter.
      *
-     * @throws \Bridge\Components\Exporter\ExporterException If Entity name not found on collections.
+     * @throws \Bridge\Components\Exporter\ExporterException If entity name not found on collections.
+     * @throws \Bridge\Components\Exporter\ExporterException If invalid entity name given.
      *
      * @return \Bridge\Components\Exporter\Contracts\EntityInterface
      */
@@ -132,6 +115,9 @@ abstract class AbstractEntityBuilder implements \Bridge\Components\Exporter\Cont
     {
         if (array_key_exists($entityName, $this->getEntities()) === false) {
             throw new \Bridge\Components\Exporter\ExporterException('Entity not found on collections');
+        }
+        if (trim($entityName) === '' or $entityName === null) {
+            throw new \Bridge\Components\Exporter\ExporterException('Please provide the entity name');
         }
         return $this->getEntities()[$entityName];
     }

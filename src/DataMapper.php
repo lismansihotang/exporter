@@ -32,41 +32,34 @@ class DataMapper implements \Bridge\Components\Exporter\Contracts\MapperInterfac
     private $FieldMapperData;
 
     /**
-     * Result of data mapper and matcher processing.
+     * Result of data mapper processing.
      *
      * @var array $Result
      */
     private $Result;
 
     /**
-     * Data record source instance.
+     * Source entity object that will be used as the valid model.
      *
-     * @var \Bridge\Components\Exporter\Contracts\DataSourceInterface $Source
+     * @var \Bridge\Components\Exporter\Contracts\TableEntityInterface $SourceEntity
      */
-    private $Source;
+    private $SourceEntity;
 
     /**
-     * Table entity object that will be used as the constraint of valid model.
+     * Target entity object that will be mapped to the source entity.
      *
-     * @var \Bridge\Components\Exporter\Contracts\TableEntityInterface $TableEntity
+     * @var \Bridge\Components\Exporter\Contracts\TableEntityInterface $TargetEntity
      */
-    private $TableEntity;
-
-    /**
-     * Data record target instance.
-     *
-     * @var \Bridge\Components\Exporter\Contracts\DataSourceInterface $Target
-     */
-    private $Target;
+    private $TargetEntity;
 
     /**
      * DataMatcher constructor.
      *
-     * @param \Bridge\Components\Exporter\Contracts\TableEntityInterface $tableEntity Table entity parameter.
+     * @param \Bridge\Components\Exporter\Contracts\TableEntityInterface $sourceEntityObj Source entity object param.
      */
-    public function __construct(\Bridge\Components\Exporter\Contracts\TableEntityInterface $tableEntity)
+    public function __construct(\Bridge\Components\Exporter\Contracts\TableEntityInterface $sourceEntityObj = null)
     {
-        $this->TableEntity = $tableEntity;
+        $this->SourceEntity = $sourceEntityObj;
     }
 
     /**
@@ -80,55 +73,96 @@ class DataMapper implements \Bridge\Components\Exporter\Contracts\MapperInterfac
     }
 
     /**
-     * Get mapper and matcher result data.
+     * Get mapped data result.
+     *
+     * @param array $fieldFilters Field filters data that will be retrieved from the mapped data result.
      *
      * @return array
      */
-    public function getResult()
+    public function getMappedData(array $fieldFilters = [])
     {
-        return $this->Result;
+        $mappedData = $this->Result;
+        if (count($fieldFilters) > 0) {
+            foreach ($mappedData as $rowNumber => $rowData) {
+                foreach ($rowData as $field) {
+                    if (array_key_exists($field, $rowData) === true) {
+                        unset($mappedData[$rowNumber][$field]);
+                    }
+                }
+            }
+        }
+        return $mappedData;
     }
 
     /**
-     * Get the data record source object property.
-     *
-     * @return \Bridge\Components\Exporter\Contracts\DataSourceInterface
-     */
-    public function getSourceObject()
-    {
-        return $this->Source;
-    }
-
-    /**
-     * Get the table entity object property.
+     * Get the source entity object instance property.
      *
      * @return \Bridge\Components\Exporter\Contracts\TableEntityInterface
      */
-    public function getTableEntityObject()
+    public function getSourceEntityObject()
     {
-        return $this->TableEntity;
+        return $this->SourceEntity;
     }
 
     /**
-     * Get the data record target object.
+     * Get the target entity object instance property.
      *
-     * @return \Bridge\Components\Exporter\Contracts\DataSourceInterface
+     * @return \Bridge\Components\Exporter\Contracts\TableEntityInterface
      */
-    public function getTargetObject()
+    public function getTargetEntityObject()
     {
-        return $this->Target;
+        return $this->TargetEntity;
     }
 
     /**
-     * Run mapper as matcher procedure result.
+     * Run mapper procedure.
+     *
+     * @param boolean $replaceSourceData Replace all source data flag option parameter.
+     * @param boolean $reIndex           Re-index all the mapper data result keys flag option parameter.
+     *
+     * @throws \Bridge\Components\Exporter\ExporterException If any error raised when run the mapper procedure.
      *
      * @return boolean
      */
-    public function runMapper()
+    public function runMapper($replaceSourceData = true, $reIndex = true)
     {
-        # Get the table entity data.
-        # Get the record source data.
-        # Get the record target data.
+        try {
+            $result = [];
+            # Get the source entity data.
+            $sourceData = $this->getSourceEntityObject()->getData();
+            # Get the target entity data.
+            $targetData = $this->getTargetEntityObject()->getData();
+            if ($reIndex === true) {
+                $sourceData = array_values($sourceData);
+                $targetData = array_values($targetData);
+            }
+            # Compare the field/header between the source and target entity.
+            # Step: Get the field header for each entity that has been mapped.
+            if ($this->validateFieldMapperData() === true) {
+                # Map all the target data using the field data mapper and render into data collection.
+                $fieldDataMapper = $this->getFieldMapperData();
+                foreach ($targetData as $rowNumber => $rows) {
+                    foreach ($fieldDataMapper as $sourceField => $targetField) {
+                        $result[$rowNumber][$sourceField] = $rows[$targetField];
+                    }
+                }
+                if ($replaceSourceData === false) {
+                    $result = array_merge($sourceData, $result);
+                }
+                # If the mapping data is success and entity constraint has been defined then do:
+                # Verify/check all the data type constraint for each field.
+                if ($this->validateDataConstraint($result) === false) {
+                    return false;
+                }
+                # Set the Result property content = the mapper result data.
+                $this->Result = $result;
+                # If all process going well return true.
+                return true;
+            }
+            return false;
+        } catch (\Exception $ex) {
+            throw new \Bridge\Components\Exporter\ExporterException($ex->getMessage());
+        }
     }
 
     /**
@@ -144,38 +178,72 @@ class DataMapper implements \Bridge\Components\Exporter\Contracts\MapperInterfac
     }
 
     /**
-     * Set source data property.
-     *
-     * @param \Bridge\Components\Exporter\Contracts\DataSourceInterface $sourceObj Data record source object parameter.
-     *
-     * @return void
-     */
-    public function setSource(\Bridge\Components\Exporter\Contracts\DataSourceInterface $sourceObj)
-    {
-        $this->Source = $sourceObj;
-    }
-
-    /**
      * Set table entity property that will act as the virtual document rules.
      *
-     * @param \Bridge\Components\Exporter\Contracts\TableEntityInterface $tableEntityObj Table entity object parameter.
+     * @param \Bridge\Components\Exporter\Contracts\TableEntityInterface $sourceEntityObj Source entity object param.
      *
      * @return void
      */
-    public function setTableEntity(\Bridge\Components\Exporter\Contracts\TableEntityInterface $tableEntityObj)
+    public function setSourceEntity(\Bridge\Components\Exporter\Contracts\TableEntityInterface $sourceEntityObj)
     {
-        $this->TableEntity = $tableEntityObj;
+        $this->SourceEntity = $sourceEntityObj;
     }
 
     /**
      * Set the data target that will be compared and matched with the data source.
      *
-     * @param \Bridge\Components\Exporter\Contracts\DataSourceInterface $targetObj Data record target object parameter.
+     * @param \Bridge\Components\Exporter\Contracts\TableEntityInterface $targetEntityObj Target entity object param.
      *
      * @return void
      */
-    public function setTarget(\Bridge\Components\Exporter\Contracts\DataSourceInterface $targetObj)
+    public function setTargetEntity(\Bridge\Components\Exporter\Contracts\TableEntityInterface $targetEntityObj)
     {
-        $this->Target = $targetObj;
+        $this->TargetEntity = $targetEntityObj;
+    }
+
+    /**
+     * Validate the data mapper result by the assigned source constraint entity object.
+     *
+     * @param array $dataMapperResult Data mapper result parameter.
+     *
+     * @return boolean
+     */
+    private function validateDataConstraint(array $dataMapperResult)
+    {
+        if ($this->getSourceEntityObject()->getConstraintEntityObject() !== null) {
+            foreach ($dataMapperResult as $rows) {
+                foreach ((array)$rows as $field => $value) {
+                    $fieldObj = $this->getSourceEntityObject()->getField($field);
+                    if ($fieldObj->getFieldTypeObject()->validateConstraint($value) === false) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Validate the field mapper data property.
+     *
+     * @throws \Bridge\Components\Exporter\ExporterException If some field mapper not found on source entity.
+     * @throws \Bridge\Components\Exporter\ExporterException If some field mapper not found on target entity.
+     *
+     * @return boolean
+     */
+    private function validateFieldMapperData()
+    {
+        # Get field mapper data.
+        $fieldMapperData = $this->getFieldMapperData();
+        # Check if all the keys on field mapper data are exist on the source entity.
+        if (count(array_diff_key($fieldMapperData, $this->getSourceEntityObject()->getFields())) !== 0) {
+            throw new \Bridge\Components\Exporter\ExporterException('Some field mapper not found on source entity');
+        }
+        # Check if all the keys on field mapper data are exist on the target entity.
+        if (count(array_diff($fieldMapperData, array_keys($this->getTargetEntityObject()->getFields()))) !== 0) {
+            throw new \Bridge\Components\Exporter\ExporterException('Some field mapper not found on target entity');
+        }
+        # Return true if field mapper data is valid.
+        return true;
     }
 }

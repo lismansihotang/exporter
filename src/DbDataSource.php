@@ -25,6 +25,16 @@ class DbDataSource implements \Bridge\Components\Exporter\Contracts\DataSourceIn
 {
 
     /**
+     * Load the data source and run initial process.
+     *
+     * @return void
+     */
+    public function doLoad()
+    {
+        # TODO: Implement doLoad() method.
+    }
+
+    /**
      * Do mass import data set.
      *
      * @param array $data Data that will be updated into data source.

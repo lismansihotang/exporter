@@ -39,6 +39,13 @@ interface FieldElementInterface
     public function getFieldName();
 
     /**
+     * Get the field type instance property.
+     *
+     * @return \Bridge\Components\Exporter\Contracts\FieldTypeInterface
+     */
+    public function getFieldTypeObject();
+
+    /**
      * Get primary key state property.
      *
      * @return boolean
